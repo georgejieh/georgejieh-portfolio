@@ -1,7 +1,7 @@
 # George_Data_Analytics_Portfolio
 Sample Data Analysis Portfolio
 
-# Project 1: Bike-Share Membership Analysis : Project Overview
+# [Project 1: Bike-Share Membership Analysis : Project Overview]
 * Identify the business task and present a clear statement with consideration of key stakeholders
 * Scraped public data, organize it locally, and verified the data's integrity
 * Utilized various Excel functions to check data for errors as well as transform the data to be utilitzed.
