@@ -1,6 +1,8 @@
 # George Jieh's Data Analytics Portfolio
 A page to compile all data analytics case studies that I have completed so far.
 
+[toc]
+
 ## [Project 1 - Google Data Analytics Case Study 1: How Does a Bike-Share Navigate Speedy Success?](https://github.com/georgejieh/bikeshare-analysis)
 ![alt text](https://i.imgur.com/trZS04H.png)
 
@@ -58,4 +60,23 @@ With what we could work with, the recommendation provided to Cyclistic is to com
 - People that ride during winter and spring on classic bikes.
 
 Examples provided were annual membership discounts during winter and spring or targeted annual membership advertising for individuals that have a record of riding on weekdays.
+
+## [Project 2 - Google Data Analytics Case Study 2: How Can a Wellness Technology Company Play It Smart?](https://github.com/georgejieh/bellabeat-analysis)
+
+![img](https://i.imgur.com/0Dtva0S.png)
+
+#### General Project Overview
+
+* Apply Google's ask, prepare, process, analyze, share, and act framework to approach the project and outline the final report.
+* Identify the business task and present a clear statement with consideration of key stakeholders.
+* Present business questions to be answered by the analytics.
+* Aggregate data to perform various statistical calculations. (i.e. average and max ride length based on membership choice, season of year, month of year, and day of the week)
+* Identify trends and relationship to describe user habits of health tracking devices using SQL, and R.
+* Create effective data visualizations with Tableau.
+* Employ git to document project process, manage project directory and push repository onto github for easy sharing.
+* Utilize Markdown to write a report and present findings.
+
+#### Summary of Conclusions
+
+In this analysis we primarily used SQL and R to manipulate and analyze the data because of how the data is presented. The data have heavy limitations from it's small sample size. The data is collected from 30 individuals and not all tables provided have all 30 individuals in it, for example the weight table only contains data from 8 individuals. Because of the limitations, it is difficult to definitively come up with any conclusion on trends, however there is still enough data to make an educated guess. 
 
