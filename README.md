@@ -1,9 +1,7 @@
 # George Jieh's Data Analytics Portfolio
 A page to compile all data analytics case studies that I have completed so far.
 
-{:toc}
-
-## [Project 1 - Google Data Analytics Case Study 1: How Does a Bike-Share Navigate Speedy Success?](https://github.com/georgejieh/bikeshare-analysis)
+## [Project 1 - Google Data Analytics Case Study 1: How Does a Bike-Share Navigate Speedy Success?](https://georgejieh.github.io/bikeshare-analysis/)
 ![alt text](https://i.imgur.com/trZS04H.png)
 
 #### General Project Overview
@@ -61,7 +59,7 @@ With what we could work with, the recommendation provided to Cyclistic is to com
 
 Examples provided were annual membership discounts during winter and spring or targeted annual membership advertising for individuals that have a record of riding on weekdays.
 
-## [Project 2 - Google Data Analytics Case Study 2: How Can a Wellness Technology Company Play It Smart?](https://github.com/georgejieh/bellabeat-analysis)
+## [Project 2 - Google Data Analytics Case Study 2: How Can a Wellness Technology Company Play It Smart?](https://georgejieh.github.io/bellabeat-analysis/)
 
 ![img](https://i.imgur.com/0Dtva0S.png)
 
