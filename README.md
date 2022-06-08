@@ -1,8 +1,6 @@
 # George Jieh's Data Analytics Portfolio
 A page to compile all data analytics case studies that I have completed so far.
 
-#### Table of Contents
-
 - TOC
 {:toc}
 
