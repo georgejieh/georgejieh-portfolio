@@ -3,10 +3,10 @@ A page to compile all data analytics case studies that I have completed so far.
 
 #### Table of Contents
 
-- Project 1 - Google Data Analytics Case Study 1: Cyclistic
+- Project 1 - Google Data Analytics Case Study 1: How Does a Bike-Share Navigate Speedy Success?
   - General Project Overview
   - Summay of Conclusions
-- Project 2 - Google Data Analytics Case Study 2: Bellabeat
+- Project 2 - Google Data Analytics Case Study 2: How Can a Wellness Technology Company Play It Smart?
   - General Project Overview
   - Summary of Conclusions
 
