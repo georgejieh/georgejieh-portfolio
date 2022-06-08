@@ -1,8 +1,6 @@
 # George Jieh's Data Analytics Portfolio
 A page to compile all data analytics case studies that I have completed so far.
 
-[toc]
-
 ## [Project 1 - Google Data Analytics Case Study 1: How Does a Bike-Share Navigate Speedy Success?](https://github.com/georgejieh/bikeshare-analysis)
 ![alt text](https://i.imgur.com/trZS04H.png)
 
