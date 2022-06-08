@@ -78,3 +78,40 @@ Examples provided were annual membership discounts during winter and spring or t
 
 In this analysis we primarily used SQL and R to manipulate and analyze the data because of how the data is presented. The data have heavy limitations from it's small sample size. The data is collected from 30 individuals and not all tables provided have all 30 individuals in it, for example the weight table only contains data from 8 individuals. Because of the limitations, it is difficult to definitively come up with any conclusion on trends, however there is still enough data to make an educated guess. 
 
+With SQL we tried to figure out the algorithm behind how the tracker manages to come up with the amount of calories burned. We were unable to come up with anything conclusive. There are two primary ways for burned calories to be calulated, one is through the use of METs and the other is through heart rate. The METs method doesn't apply to this data set because the METs data presented by the tables are not the same as the standard metrics. The heart rate method is of the highest possibility, however there is no evidence of all user's weight and age is actively tracked. Despite this, from the statistical analysis done in SQL we were able to start seeing a lack of correlation between number of steps taken per day and calories burned. This is further emphasized by the following graph:
+
+![img](https://i.imgur.com/kLY8ssS.png)
+
+We can see that the more active someone is, the more steps they will take per day. So there is a positive relationship in that sense, but we don't see an obvious gradient where the dots becoming lighter in color, more calories burned, the more we go towards the top left. This chart further emphasizes this insight:
+
+![img](https://i.imgur.com/fgw22MI.png)
+
+Though the trend line does show that the longer someone is active the more calories are burned. However, this is not as obvious of a positive correlation as it was between number of steps per day and minutes active per day. There is obviously two clusters of similar size that is located both below and above the trend line. Meaning at any amount of daily activity, there can be significant differences between calories burned. The next two charts shows why:
+
+![img](https://i.imgur.com/PWbbbhG.png)
+
+![img](https://i.imgur.com/zOI3rSR.png)
+
+Since the data on average rarely have people spent more than 50% of their active time exericising, so it isn't super obvious, but we can still tell that a lot of the dots above the trend line have some level of time spent exercising, while most dots below the trend line primarily just do light activities. From this we an tell that the amount of time spent being active, also indirectly infers the amount of steps taken per day, is not as important for burning calories than what you are actually doing when you are being active or taking those steps. 
+
+This insight leads to an important discovery that plays a part in the final marketing proposal of this project. From the data we were able to find out that people that are considered healthy tends to behave as though they are trying to meeting the recommended quotas to maintain a healthy lifestyle, while people that are overweight tends to behave as though they are on a weight loss program. This is revealed by the following density charts:
+
+![img](https://i.imgur.com/YkhkkyU.png)
+
+![img](https://i.imgur.com/TL4MBWm.png)
+
+![img](https://i.imgur.com/yPAwKQC.png)
+
+![img](https://i.imgur.com/B6rqcbG.png)
+
+From these charts, we see that both healthy and overweight individuals tends to share a similar amount of time active, however overweight individuals lean towards a higher amount of calories burned per day than healthy individuals. We can see that healthy individual's density curve peaks just above 2000 calories burned per day, while overweight individuals peak around 3750 calories burned per day. This is possible because, statistically speaking, overweight individuals in this data set spends more time exerising and less time only being lightly active when compared to healthy individuals. The aforementioned trend is further emphasized by the following graph:
+
+![img](https://i.imgur.com/DxELZco.png)
+
+By using box plots in Tableau, we see that there isa much larger spread when it comes to daily calories burned for overweight individuals than healthy individuals. Another interesting insight found using Tableau, is that it shows people that are Obese and some of the people that are slightly overweight tends to not actively report their weight data, while people that are overweight and approaching being obese, and people that are healthy do actively report their weight data. You an see the Tableau dashboard below and the Tableau public link [here](https://public.tableau.com/app/profile/george.jieh/viz/GoogleDataAnalyticsCase2/Dashboard1):
+
+![img](https://i.imgur.com/91MiWAv.png)
+
+From our analysis we can draw a number of conclusions, such as exercising more burns more calories, not all types of activities are created equal when it comes to losing weight, and calories burned doesn't have a obvious direct correlation with the numbers of steps you take in a day. However none of these conclusions is as important as the tracker usage trends discovered for healthy individuals and overweight individuals. 
+
+With these two trends there are targeted marketing opportunities. To target the overweight public that wants to lose weight, there can be marketing done with weight loss in mind, while for the healthy public, the products can be marketed as something that helps you keep track and make sure you are meeting your doctors recommendations.
