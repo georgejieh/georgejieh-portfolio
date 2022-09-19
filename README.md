@@ -72,7 +72,7 @@ Examples provided were annual membership discounts during winter and spring or t
 * Apply Google's ask, prepare, process, analyze, share, and act framework to approach the project and outline the final report.
 * Identify the business task and present a clear statement with consideration of key stakeholders.
 * Present business questions to be answered by the analytics.
-* Aggregate data to perform various statistical calculations. (i.e. average and max ride length based on membership choice, season of year, month of year, and day of the week)
+* Aggregate data to perform various statistical calculations. (i.e. average steps per various period of time, season of year, month of year, and day of the week)
 * Identify trends and relationship to describe user habits of health tracking devices using SQL, and R.
 * Create effective data visualizations with Tableau.
 * Employ git to document project process, manage project directory and push repository onto github for easy sharing.
