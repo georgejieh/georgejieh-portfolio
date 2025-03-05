@@ -14,7 +14,7 @@ Welcome to my portfolio showcasing my expertise in data science, machine learnin
 
 ### 🤖 [FreshRSS Financial News Analyzer](https://github.com/georgejieh/freshrss-ai-summarizer)
 
-![Financial News Analysis](https://i.imgur.com/placeholder.png)
+![Financial News Analysis](images/freshrss-analyzer.png)
 
 A Python-based tool that leverages LLMs (OpenAI or Ollama) to:
 - Fetch and analyze financial news articles from FreshRSS
@@ -29,7 +29,7 @@ A Python-based tool that leverages LLMs (OpenAI or Ollama) to:
 
 ### 🍇 [Predicting Wine Grape Suitability](https://github.com/georgejieh/predicting_grape_suitability_based_on_climate_and_precipitation)
 
-![Wine Grape Suitability Model](https://i.imgur.com/placeholder.png)
+![Wine Grape Suitability Model](images/wine-prediction.png)
 
 A machine learning model that predicts optimal grape varieties based on climate data:
 - Analyzes impact of climate change on traditional viticulture zones
@@ -44,7 +44,7 @@ A machine learning model that predicts optimal grape varieties based on climate 
 
 ### 🎴 [MTG AI Deck Builder](https://github.com/georgejieh/mtg_ai_deck_builder)
 
-![MTG AI Deck Builder](https://i.imgur.com/placeholder.png)
+![MTG AI Deck Builder](images/mtg-deck-builder.png)
 
 An AI-powered tool for creating optimized Magic: The Gathering decks:
 - Analyzes the evolving Standard format meta
@@ -59,7 +59,7 @@ An AI-powered tool for creating optimized Magic: The Gathering decks:
 
 ### 📚 [Code Fluency](https://github.com/georgejieh/code-fluency)
 
-![Code Fluency](https://i.imgur.com/placeholder.png)
+![Code Fluency](images/code-fluency.png)
 
 A personal repository dedicated to maintaining and strengthening programming skills:
 - Regular practice of algorithms, data structures, and programming fundamentals
@@ -74,7 +74,7 @@ A personal repository dedicated to maintaining and strengthening programming ski
 
 ### 🚲 [Bikeshare Analysis](https://georgejieh.github.io/bikeshare-analysis/)
 
-![Bikeshare Analysis](https://i.imgur.com/trZS04H.png)
+![Bikeshare Analysis](images/bikeshare-analysis.png)
 
 A data analytics case study exploring bikeshare usage patterns:
 - Applied Google's data analytics framework (ask, prepare, process, analyze, share, act)
@@ -85,13 +85,13 @@ A data analytics case study exploring bikeshare usage patterns:
 
 **Key findings**: Identified specific user segments that behave similarly to annual members, providing opportunities for targeted conversion strategies.
 
-**Technologies used**: SQL, R, Excel, Tableau, Git, Markdown
+**Technologies used**: SQL, R, Excel, Tableau
 
 ---
 
 ### 🏃‍♀️ [Bellabeat Wellness Analysis](https://georgejieh.github.io/bellabeat-analysis/)
 
-![Bellabeat Analysis](https://i.imgur.com/0Dtva0S.png)
+![Bellabeat Analysis](images/bellabeat-analysis.png)
 
 A wellness technology case study analyzing fitness tracking data:
 - Investigated user habits and behaviors with health tracking devices
@@ -102,7 +102,7 @@ A wellness technology case study analyzing fitness tracking data:
 
 **Key findings**: Users with different health profiles (healthy vs. overweight) exhibit distinct usage patterns, offering opportunities for segment-specific marketing approaches.
 
-**Technologies used**: SQL, R, Tableau, Statistical Analysis
+**Technologies used**: SQL, R, Tableau, Excel
 
 ## Connect With Me
 
