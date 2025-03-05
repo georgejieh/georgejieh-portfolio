@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% seo %}
+    <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | relative_url }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="header-content">
+        <h1 class="project-name">{{ site.title | default: site.github.repository_name }}</h1>
+        <h2 class="project-tagline">{{ site.description | default: site.github.project_tagline }}</h2>
+        
+        <div class="social-links">
+          {% if site.github %}
+          <a href="https://github.com/{{ site.github }}" aria-label="GitHub Profile" target="_blank" rel="noopener">
+            <i class="fab fa-github"></i>
+          </a>
+          {% endif %}
+          
+          {% if site.linkedin %}
+          <a href="https://www.linkedin.com/in/{{ site.linkedin }}" aria-label="LinkedIn Profile" target="_blank" rel="noopener">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          {% endif %}
+          
+          {% if site.email %}
+          <a href="mailto:{{ site.email }}" aria-label="Email">
+            <i class="fas fa-envelope"></i>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <main id="content" class="main-content" role="main">
+      {{ content }}
+      
+      <footer class="site-footer">
+        <span class="site-footer-owner">© {{ 'now' | date: "%Y" }} {{ site.author.name | default: site.github.owner_name }}</span>
+      </footer>
+    </main>
+  </body>
+</html>
