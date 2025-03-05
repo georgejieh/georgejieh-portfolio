@@ -3,7 +3,7 @@ markdown: kramdown
 title: George Jieh | Data Science & AI Portfolio
 description: Software Engineer specializing in AI/ML, Data Science, and Backend Development
 url: https://georgejieh.dev
-baseurl: 
+baseurl: ""
 
 # Social links
 linkedin: george-jieh
