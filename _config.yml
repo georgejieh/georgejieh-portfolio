@@ -2,7 +2,6 @@ theme: jekyll-theme-cayman
 markdown: kramdown
 title: George Jieh | Data Science & AI Portfolio
 description: Showcasing my projects in data science, machine learning, and software engineering
-google_analytics: # Add your Google Analytics ID here if you have one
 linkedin: george-jieh
 github: georgejieh
 email: george.jieh@gmail.com
