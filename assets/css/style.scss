@@ -1,0 +1,166 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* Custom dark theme with blue-teal accent colors */
+:root {
+  --background-color: #121b2a;
+  --text-color: #e0e0e0;
+  --heading-color: #ffffff;
+  --link-color: #4dd8e6;
+  --link-hover: #7ae7ff;
+  --accent-color: #2b6c9e;
+  --border-color: #2a3a4a;
+  --code-background: #1a2639;
+  --blockquote-color: #2a3a4a;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.page-header {
+  background-color: #0a1525;
+  background-image: linear-gradient(120deg, #0a1525, #1a3a4c);
+  padding: 2rem;
+  border-bottom: 1px solid var(--accent-color);
+}
+
+.project-name {
+  color: white;
+  font-weight: 600;
+}
+
+.project-tagline {
+  color: #b0b0b0;
+}
+
+.main-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.main-content h1, 
+.main-content h2, 
+.main-content h3, 
+.main-content h4, 
+.main-content h5, 
+.main-content h6 {
+  color: var(--heading-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+}
+
+.main-content h1 {
+  color: var(--link-color);
+}
+
+.main-content h2 {
+  color: #4dd8e6;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  margin: 1.5rem 0;
+  display: block;
+}
+
+/* Project sections styling */
+.main-content hr {
+  height: 1px;
+  background-color: var(--border-color);
+  border: none;
+  margin: 2.5rem 0;
+}
+
+code {
+  background-color: var(--code-background);
+  color: #e0e0e0;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+blockquote {
+  background-color: var(--blockquote-color);
+  border-left: 4px solid var(--link-color);
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Footer styling */
+.site-footer {
+  background-color: #0a1525;
+  border-top: 1px solid var(--border-color);
+  padding: 2rem 0;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+/* Tech stack and skills styling */
+ul {
+  list-style-type: none;
+  padding-left: 1rem;
+}
+
+ul li {
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+ul li:before {
+  content: "▹";
+  color: var(--link-color);
+  position: absolute;
+  left: -1rem;
+}
+
+/* Project cards */
+.project-section {
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.project-section h3 {
+  margin-top: 0;
+  border-bottom: none; 
+}
+
+.project-section img {
+  transition: transform 0.3s ease;
+}
+
+.project-section:hover img {
+  transform: translateY(-5px);
+}
+
+/* Responsive improvements */
+@media screen and (max-width: 42em) {
+  .page-header {
+    padding: 1rem;
+  }
+  
+  .main-content {
+    padding: 1rem 0.5rem;
+  }
+}
