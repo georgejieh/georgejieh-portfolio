@@ -1,115 +1,112 @@
-# George Jieh's Data Science & AI Portfolio
+💫 This is a free template to make your portfolio website using **[Astro 4.0](https://astro.build/) + [Tailwind CSS](https://tailwindcss.com/)**.
 
-Welcome to my portfolio showcasing my expertise in data science, machine learning, and software engineering. I specialize in developing end-to-end solutions that leverage data for intelligent decision-making.
+### Dark mode
+![Dark mode](https://github.com/veranikabarel/astro-portfolio/assets/48052206/240ab82d-8896-412e-8f52-5cf10d42b1db)
+### Light mode
+![Light mode](https://github.com/veranikabarel/astro-portfolio/assets/48052206/bfa88b30-6dcf-4d5f-bf28-efc3caa27d0f)
+### Lighthouse report
+![Lighthouse report](https://github.com/veranikabarel/astro-portfolio/assets/48052206/e7ad23a4-1a9b-477e-a13e-a321ce6bd3d6)
 
-## Skills & Expertise
+## Table of Contents
 
-- **Programming & Development**: Python, SQL, Flask, FastAPI, Django, JavaScript, Bash
-- **Machine Learning & AI**: scikit-learn, TensorFlow, PyTorch, LLM evaluation & fine-tuning
-- **Data Engineering**: Pandas, NumPy, BigQuery, Spark, ETL Pipelines
-- **Cloud & DevOps**: AWS, Azure, Docker, Kubernetes, CI/CD
-- **Security & Best Practices**: Data privacy, API key management, fraud prevention
+- [Demo](#demo)
+- [Features](#features)
+- [Project structure](#project-structure)
+- [Commands](#commands)
+- [Contributing](#contributing)
+- [Credits](#credits)
 
-## Featured Projects
+## Demo
 
-### 🤖 [FreshRSS Financial News Analyzer](https://github.com/georgejieh/freshrss-ai-summarizer)
+📌 [https://astro-fe-portfolio.netlify.app/](https://astro-fe-portfolio.netlify.app/)
 
-![Financial News Analysis](images/freshrss-analyzer.webp)
+## Features
 
-A Python-based tool that leverages LLMs (OpenAI or Ollama) to:
-- Fetch and analyze financial news articles from FreshRSS
-- Perform sentiment analysis on stock tickers and companies
-- Generate market trend summaries
-- Support multiple languages for analysis
-- Auto-protect system resources with RAM monitoring
+✔️ Integration with **Tailwind CSS** ([@astrojs/tailwind](https://docs.astro.build/en/guides/integrations-guide/tailwind/)) supporting **Dark mode**.
 
-**Technologies used**: Python, OpenAI API, Ollama, NLP, Financial Analysis
+✔️ Uses the following integrations:
 
----
+- @astrojs/mdx
+- @astrojs/image
+- @astrojs/tailwind - with prettier class sorting plugin
+- @astro-icon
+- @astro-seo
+- @astro-navbar
 
-### 🍇 [Predicting Wine Grape Suitability](https://github.com/georgejieh/predicting_grape_suitability_based_on_climate_and_precipitation)
+✔️([@Playwright](https://github.com/microsoft/playwright)) e2e tests are setted up.
 
-![Wine Grape Suitability Model](images/wine-prediction.webp)
+🔜 Blog with frontmatter (title, description, author, date, image, tags) and RSS feed, sitemap and robots.txt
 
-A machine learning model that predicts optimal grape varieties based on climate data:
-- Analyzes impact of climate change on traditional viticulture zones
-- Helps winemakers adapt to changing conditions
-- Utilizes weather API data and wine quality metrics
-- Employs H2O's Distributed Random Forest model for predictions
-- Delivered as a Flask web application for user-friendly interaction
+🔜 404 error page
 
-**Technologies used**: Python, Machine Learning, H2O AutoML, Flask, Weather APIs
+## Project Structure
 
----
+Inside of your Astro project, you'll see the following folders and files:
 
-### 🎴 [MTG AI Deck Builder](https://github.com/georgejieh/mtg_ai_deck_builder)
+```
+/
+├── public/
+│   └── favicon.ico
+|   ├── hero.png
+|   └── ...
+├── src/
+|   ├── assets/
+|   |   ├── images/
+│   │   |   ├── hero.png
+|   |   |   └── ...
+│   ├── components/
+│   │   ├── ui/
+│   │   |   ├── BackToTop.astro
+|   |   |   └── ...
+│   │   ├── About.astro
+│   │   ├── Contact.astro
+|   |   └── ...
+│   ├── content/
+│   │   ├── projects/
+│   │   │   ├── project-1.md
+│   │   │   ├── project-1.md
+│   │   │   └── ...
+│   │   └-- config.ts
+│   ├── layouts/
+│   │   ├── Layout.astro
+│   ├── pages/
+│   │   ├── index.astro
+│   ├── tests/
+│   │   ├── index.spec.ts
+├── package.json
+├── astro.config.mjs
+└── ...
+```
 
-![MTG AI Deck Builder](images/mtg-deck-builder.webp)
+Astro looks for `.astro`, `.md` or `.mdx` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
 
-An AI-powered tool for creating optimized Magic: The Gathering decks:
-- Analyzes the evolving Standard format meta
-- Identifies card synergies and strategies through unsupervised learning
-- Integrates with Scryfall API for up-to-date card data
-- Categorizes decks into established archetypes with analysis
-- Explores innovative combinations beyond conventional archetypes
+`src/components/` is where we put any Astro components and similarly `src/layouts/` for layouts.
 
-**Technologies used**: Python, Unsupervised Learning, API Integration, Data Analysis
+Images can be placed in `src/images/`.
 
----
+Blog and documentation content are created as collections of Markdown or MDX files in `src/content`.
 
-### 📚 [Code Fluency](https://github.com/georgejieh/code-fluency)
+Any static assets, eg. images, can be placed in the `public/` directory.
 
-![Code Fluency](images/code-fluency.webp)
+## Commands
 
-A personal repository dedicated to maintaining and strengthening programming skills:
-- Regular practice of algorithms, data structures, and programming fundamentals
-- Implementation of solutions across multiple languages
-- Focus on Python, SQL, JavaScript, and more
-- Well-organized reference library for syntax and patterns
-- Systematic approach to learning new programming concepts
+All commands are run from the root of the project, from a terminal:
 
-**Technologies used**: Python, SQL, JavaScript, Algorithms, Data Structures
+| Command             | Action                                             |
+| :------------------ | :------------------------------------------------- |
+| `yarn`              | Installs dependencies                              |
+| `yarn dev`          | Starts local dev server at `localhost:3000`        |
+| `yarn build`        | Build your production site to `./dist/`            |
+| `yarn preview`      | Preview your build locally, before deploying       |
+| `yarn astro ...`    | Run CLI commands like `astro add`, `astro preview` |
+| `yarn astro --help` | Get help using the Astro CLI                       |
+| `yarn test:e2e`     | Run Playwright tests                               |
 
----
+## Contributing
 
-### 🚲 [Bikeshare Analysis](https://georgejieh.github.io/bikeshare-analysis/)
+If you have any idea, suggestions or find any bugs, feel free to open a discussion, an issue or create a pull request.
+That would be very useful for all of us and we would be happy to listen and take action.
 
-![Bikeshare Analysis](images/bikeshare-analysis.webp)
+## Credits
 
-A data analytics case study exploring bikeshare usage patterns:
-- Applied Google's data analytics framework (ask, prepare, process, analyze, share, act)
-- Analyzed differences between annual members and casual riders
-- Used Excel, SQL, and R for data processing and statistical analysis
-- Created interactive visualizations with Tableau
-- Developed targeted marketing recommendations based on user behavior
-
-**Key findings**: Identified specific user segments that behave similarly to annual members, providing opportunities for targeted conversion strategies.
-
-**Technologies used**: SQL, R, Excel, Tableau
-
----
-
-### 🏃‍♀️ [Bellabeat Wellness Analysis](https://georgejieh.github.io/bellabeat-analysis/)
-
-![Bellabeat Analysis](images/bellabeat-analysis.webp)
-
-A wellness technology case study analyzing fitness tracking data:
-- Investigated user habits and behaviors with health tracking devices
-- Discovered distinct usage patterns between different BMI groups
-- Analyzed relationships between activity types and calorie expenditure
-- Created data visualizations to reveal insights about user engagement
-- Developed marketing strategies tailored to different user segments
-
-**Key findings**: Users with different health profiles (healthy vs. overweight) exhibit distinct usage patterns, offering opportunities for segment-specific marketing approaches.
-
-**Technologies used**: SQL, R, Tableau, Excel
-
-## Connect With Me
-
-- 📧 [Email](mailto:george.jieh@gmail.com)
-- 💼 [LinkedIn](https://www.linkedin.com/in/george-jieh/)
-- 🖥️ [GitHub](https://github.com/georgejieh)
-
----
-
-*This portfolio highlights selected projects from my work in data science, AI, and software engineering. I'm currently exploring opportunities in these fields and am open to collaboration on innovative projects.*
+Assets designed by (Freepik)[www.freepik.com].

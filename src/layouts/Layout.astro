@@ -1,0 +1,59 @@
+---
+import Footer from '@components/Footer.astro';
+import Navbar from '@components/Navbar.astro';
+import { SEO } from 'astro-seo';
+
+export interface LayoutProps {
+	title: string;
+}
+
+const { title = 'George Jieh | Data Science & AI Portfolio' } = Astro.props as LayoutProps;
+---
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" data-testid="html">
+	<head>
+		<SEO
+			title="George Jieh | Data Science & AI Portfolio"
+			description="Software Engineer specializing in AI/ML, Data Science, and Backend Development"
+		/>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+		<title>{title}</title>
+	</head>
+	<body
+		class="mx-auto max-w-screen-xl bg-black px-5 font-sans text-white xs:text-[16px] md:text-[18px]"
+	>
+		<Navbar />
+		<slot />
+		<Footer />
+		<style is:global>
+			/* Improve Page speed */
+			/* https://css-tricks.com/almanac/properties/c/content-visibility/ */
+			img {
+				content-visibility: auto;
+				border-radius: 8px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+				margin: 1.5rem 0;
+			}
+			
+			body {
+				background-color: #121b2a;
+				color: #e0e0e0;
+			}
+			
+			a {
+				color: #4dd8e6;
+				transition: color 0.2s ease;
+			}
+			
+			a:hover {
+				color: #7ae7ff;
+			}
+		</style>
+	</body>
+</html>
