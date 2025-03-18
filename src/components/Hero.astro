@@ -6,25 +6,26 @@ import { Image } from 'astro:assets';
 
 <section
 	data-testid="hero"
-	class="flex h-screen flex-col-reverse items-center justify-center text-center lg:flex-row"
+	class="flex flex-col-reverse items-center justify-center text-center py-8 md:h-screen md:flex-row"
 >
-	<div class="mb-10 flex flex-col items-center lg:mb-0 lg:w-1/2">
+	<div class="mb-6 flex flex-col items-center lg:mb-0 lg:w-1/2">
 		<div>
-			<h1 class="mb-10 font-monospace text-3xl text-white lg:text-5xl">
+			<h1 class="mb-6 font-monospace text-2xl text-white lg:text-5xl md:text-4xl">
 				Hi! My name is <span class="text-orange">George Jieh</span> and I am a Software Engineer specializing in AI/ML, Data Science, and Backend Development based in San Francisco Bay Area.
 			</h1>
 		</div>
-		<div class="mb-10">
+		<div>
 			<Button style={'primary'} size={'lg'} class={'flex'} name="learn more"><a href="#about" class="text-white hover:text-white">Learn more</a></Button>
 		</div>
 	</div>
-	<div data-testid="hero-img" class="mb-10 flex w-1/2 items-center justify-center">
+	<div data-testid="hero-img" class="mb-6 flex w-full md:w-1/2 items-center justify-center">
 		<Image
 			src={heroImage}
 			alt="Data science illustration"
 			format="png"
 			width={600}
 			height={600}
+			class="max-w-full max-h-[250px] md:max-h-full"
 			loading="eager"
 		/>
 	</div>
