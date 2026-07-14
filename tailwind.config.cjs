@@ -13,20 +13,19 @@ module.exports = {
       xl: '1280px',
     },
     colors: {
-      black: '#121b2a',       // Main background
-      white: '#e0e0e0',       // Main text color
-      orange: '#4dd8e6',      // Primary accent color (teal)
-      darkBg: '#0a1525',      // Header background
-      darkAccent: '#2b6c9e',  // Secondary accent color
-      darkGray: '#2a3a4a',    // Border color
-      codeGray: '#1a2639',    // Code background
+      black: '#0a0e14',
+      white: '#c9d1d9',
+      accent: '#00ff9c',
+      accentDim: '#00cc7d',
+      surface: '#11161e',
+      surfaceLight: '#1c2330',
+      border: '#2d333b',
+      muted: '#8b949e',
       transparent: 'transparent',
     },
     fontFamily: {
-      // Headings
-      sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
-      // Base text
-      monospace: ['Inconsolata', 'monospace'],
+      sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+      mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
     },
     fontSize: {
       xs: '.75rem',
@@ -39,9 +38,31 @@ module.exports = {
       '3xl': '1.875rem',
       '4xl': '2.25rem',
       '5xl': '3rem',
+      '6xl': '3.75rem',
     },
     letterSpacing: {
       wide: '.025em',
+      wider: '.05em',
+      widest: '.1em',
+    },
+    animation: {
+      'fade-in': 'fadeIn 0.6s ease-out forwards',
+      'slide-up': 'slideUp 0.5s ease-out forwards',
+      'blink': 'blink 1s step-end infinite',
+    },
+    keyframes: {
+      fadeIn: {
+        '0%': { opacity: '0' },
+        '100%': { opacity: '1' },
+      },
+      slideUp: {
+        '0%': { opacity: '0', transform: 'translateY(20px)' },
+        '100%': { opacity: '1', transform: 'translateY(0)' },
+      },
+      blink: {
+        '0%, 100%': { opacity: '1' },
+        '50%': { opacity: '0' },
+      },
     },
   },
   plugins: [

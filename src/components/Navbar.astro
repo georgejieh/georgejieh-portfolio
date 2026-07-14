@@ -1,55 +1,39 @@
 ---
-import Button from '@components/ui/Button.astro';
-import ToggleTheme from '@components/ui/ToggleTheme.astro';
-import { Astronav, MenuIcon, MenuItems } from 'astro-navbar';
-
 const menuitems = [
-	{
-		title: 'About',
-		path: '#about',
-	},
-	{
-		title: 'Projects',
-		path: '#projects',
-	},
-	{
-		title: 'Contact',
-		path: '#contact',
-	},
+  { title: 'About', path: '#about' },
+  { title: 'Focus', path: '#focus' },
+  { title: 'Projects', path: '#projects' },
+  { title: 'Contact', path: '#contact' },
 ];
 ---
 
-<header data-testId="header" class="my-5 flex flex-col items-center justify-between lg:flex-row">
-	<Astronav>
-		<div class="flex w-full items-center justify-between lg:w-auto">
-			<Button size={'sm'} name="Download CV">
-				<a href="/George_Jieh_CV.pdf" download class="text-white hover:text-white">
-					Download CV
-				</a>
-			</Button>
-			<div class="block lg:hidden">
-				<MenuIcon class="h-4 w-4 text-black dark:text-white" />
-			</div>
-		</div>
-		<MenuItems class="mt-2 hidden w-full lg:mt-0 lg:flex lg:w-auto">
-			<ul class="flex flex-col lg:flex-row lg:gap-3">
-				{
-					menuitems.map((item) => (
-						<>
-							<li>
-								<a
-									aria-label="navigation link"
-									href={item.path}
-									class="flex py-2 text-black hover:text-orange dark:text-white dark:hover:text-orange lg:px-3"
-								>
-									{item.title}
-								</a>
-							</li>
-						</>
-					))
-				}
-				<li><ToggleTheme /></li>
-			</ul>
-		</MenuItems>
-	</Astronav>
+<header data-testid="header" class="sticky top-0 z-50 border-b border-border/50 bg-black/80 backdrop-blur-md">
+  <nav class="mx-auto flex max-w-screen-xl items-center justify-between px-5 py-4">
+    <a href="/" class="font-mono text-sm font-bold text-accent">
+      <span class="text-white">~/</span>georgejieh
+    </a>
+
+    <ul class="hidden items-center gap-6 md:flex">
+      {menuitems.map((item) => (
+        <li>
+          <a
+            aria-label={`navigation link to ${item.title}`}
+            href={item.path}
+            class="font-mono text-sm text-muted transition-colors hover:text-accent"
+          >
+            {item.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <a
+      href="https://github.com/georgejieh"
+      target="_blank"
+      rel="noopener"
+      class="font-mono text-sm text-muted transition-colors hover:text-accent"
+    >
+      GitHub
+    </a>
+  </nav>
 </header>

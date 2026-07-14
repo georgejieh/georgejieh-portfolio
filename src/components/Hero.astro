@@ -1,32 +1,65 @@
 ---
-import heroImage from '@assets/images/hero.png';
-import Button from '@components/ui/Button.astro';
-import { Image } from 'astro:assets';
 ---
 
 <section
-	data-testid="hero"
-	class="flex flex-col-reverse items-center justify-center text-center py-8 md:h-screen md:flex-row"
+  data-testid="hero"
+  class="grid-bg relative flex min-h-[90vh] flex-col items-start justify-center overflow-hidden py-16 md:min-h-screen"
 >
-	<div class="mb-6 flex flex-col items-center lg:mb-0 lg:w-1/2">
-		<div>
-			<h1 class="mb-6 font-monospace text-2xl text-white lg:text-5xl md:text-4xl">
-				Hi! My name is <span class="text-orange">George Jieh</span> and I am a Software Engineer specializing in AI/ML, Data Science, and Backend Development based in San Francisco Bay Area.
-			</h1>
-		</div>
-		<div>
-			<Button style={'primary'} size={'lg'} class={'flex'} name="learn more"><a href="#about" class="text-white hover:text-white">Learn more</a></Button>
-		</div>
-	</div>
-	<div data-testid="hero-img" class="mb-6 flex w-full md:w-1/2 items-center justify-center">
-		<Image
-			src={heroImage}
-			alt="Data science illustration"
-			format="png"
-			width={600}
-			height={600}
-			class="max-w-full w-auto h-auto object-contain max-h-[250px] md:max-h-none"
-			loading="eager"
-		/>
-	</div>
+  <!-- Terminal-style header block -->
+  <div class="relative z-10 w-full max-w-4xl animate-fade-in">
+    <div class="mb-4 font-mono text-sm text-muted md:text-base">
+      <span class="text-accent">$</span> whoami
+    </div>
+
+    <h1 class="mb-2 font-mono text-3xl font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl">
+      George Jieh
+    </h1>
+
+    <div class="mb-6 font-mono text-lg text-accent sm:text-xl md:text-2xl">
+      AI/ML Developer &amp; Researcher
+    </div>
+
+    <p class="mb-8 max-w-2xl text-left text-base text-muted md:text-lg">
+      Building production AI systems in the Bay Area. AI agent visibility
+      auditing, meaning-grounded language models, and agentic orchestration
+      frameworks. Currently rebuilding past projects to production quality
+      while developing new AI systems.
+    </p>
+
+    <div class="flex flex-col gap-4 sm:flex-row sm:gap-6">
+      <a
+        href="#projects"
+        class="inline-flex items-center justify-center rounded-lg border border-accent bg-accent/10 px-6 py-3 font-mono text-sm font-medium text-accent transition-all hover:bg-accent hover:text-black md:text-base"
+      >
+        View Projects &rarr;
+      </a>
+      <a
+        href="#about"
+        class="inline-flex items-center justify-center rounded-lg border border-border px-6 py-3 font-mono text-sm font-medium text-white transition-all hover:border-accent hover:text-accent md:text-base"
+      >
+        About
+      </a>
+      <a
+        href="https://github.com/georgejieh"
+        target="_blank"
+        rel="noopener"
+        class="inline-flex items-center justify-center rounded-lg border border-border px-6 py-3 font-mono text-sm font-medium text-white transition-all hover:border-accent hover:text-accent md:text-base"
+      >
+        GitHub
+      </a>
+    </div>
+  </div>
+
+  <!-- Decorative terminal lines at bottom -->
+  <div class="relative z-10 mt-16 w-full max-w-4xl font-mono text-xs text-muted/60 md:mt-24 md:text-sm">
+    <div><span class="text-accent/60">~</span> focus: agent infrastructure, ML research, backend systems</div>
+    <div><span class="text-accent/60">~</span> stack: Python, PyTorch, FastAPI, Next.js, Hermes Agent<span class="animate-blink text-accent">_</span></div>
+  </div>
+
+  <!-- Subtle radial glow -->
+  <div
+    class="pointer-events-none absolute -top-1/4 -right-1/4 h-[600px] w-[600px] rounded-full opacity-20"
+    style="background: radial-gradient(circle, #00ff9c 0%, transparent 70%);"
+  >
+  </div>
 </section>

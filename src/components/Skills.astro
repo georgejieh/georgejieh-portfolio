@@ -2,55 +2,98 @@
 ---
 
 <section
-	data-testid="skills"
-	id="skills"
-	class="mb-10 flex flex-col items-center justify-center lg:mb-0 lg:h-screen"
+  data-testid="focus"
+  id="focus"
+  class="flex flex-col items-start justify-center py-20 md:py-28"
 >
-	<h2 class="font-monospace text-2xl text-orange lg:text-4xl">Skills & Expertise</h2>
-	<span class="mb-10 h-1 w-10 bg-orange"></span>
-	
-	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 w-full max-w-6xl">
-		<div class="bg-darkAccent bg-opacity-10 p-6 rounded-lg border border-darkGray">
-			<h3 class="mb-4 text-xl text-orange border-b border-darkGray pb-2">Programming & Development</h3>
-			<ul class="space-y-2">
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>Python</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>SQL</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>Flask, FastAPI, Django</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>JavaScript</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>Bash</li>
-			</ul>
-		</div>
-		
-		<div class="bg-darkAccent bg-opacity-10 p-6 rounded-lg border border-darkGray">
-			<h3 class="mb-4 text-xl text-orange border-b border-darkGray pb-2">Machine Learning & AI</h3>
-			<ul class="space-y-2">
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>scikit-learn</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>TensorFlow</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>PyTorch</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>LLM evaluation & fine-tuning</li>
-			</ul>
-		</div>
-		
-		<div class="bg-darkAccent bg-opacity-10 p-6 rounded-lg border border-darkGray">
-			<h3 class="mb-4 text-xl text-orange border-b border-darkGray pb-2">Data Engineering</h3>
-			<ul class="space-y-2">
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>Pandas</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>NumPy</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>BigQuery</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>Spark</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>ETL Pipelines</li>
-			</ul>
-		</div>
-		
-		<div class="bg-darkAccent bg-opacity-10 p-6 rounded-lg border border-darkGray">
-			<h3 class="mb-4 text-xl text-orange border-b border-darkGray pb-2">Cloud & DevOps</h3>
-			<ul class="space-y-2">
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>AWS</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>Azure</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>Docker</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>Kubernetes</li>
-				<li class="pl-6 relative"><span class="absolute left-0 text-orange">▹</span>CI/CD</li>
-			</ul>
-		</div>
-	</div>
+  <div class="mb-8 flex items-center gap-3 w-full">
+    <span class="font-mono text-accent text-sm">02.</span>
+    <h2 class="font-mono text-2xl text-white lg:text-3xl">Focus Areas</h2>
+    <div class="h-px flex-1 bg-border"></div>
+  </div>
+
+  <div class="grid w-full gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
+      <h3 class="mb-3 font-mono text-lg text-accent">AI Agent Infrastructure</h3>
+      <p class="mb-3 text-sm text-white/80">
+        Agent visibility auditing, agent-readable web surfaces, MCP servers,
+        agent skills, and orchestration frameworks for multi-agent workflows.
+      </p>
+      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
+        <span class="rounded border border-border px-2 py-1">FastAPI</span>
+        <span class="rounded border border-border px-2 py-1">Next.js</span>
+        <span class="rounded border border-border px-2 py-1">Hermes Agent</span>
+        <span class="rounded border border-border px-2 py-1">MCP</span>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
+      <h3 class="mb-3 font-mono text-lg text-accent">ML Research</h3>
+      <p class="mb-3 text-sm text-white/80">
+        Meaning grounding in language models, compositional generalization,
+        visual grounding, and controlled experiments with matched model
+        comparisons.
+      </p>
+      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
+        <span class="rounded border border-border px-2 py-1">PyTorch</span>
+        <span class="rounded border border-border px-2 py-1">H2O AutoML</span>
+        <span class="rounded border border-border px-2 py-1">scikit-learn</span>
+        <span class="rounded border border-border px-2 py-1">NumPy</span>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
+      <h3 class="mb-3 font-mono text-lg text-accent">Backend &amp; Data</h3>
+      <p class="mb-3 text-sm text-white/80">
+        API design, SSRF-safe fetch pipelines, scoring engines, structured data
+        validation, and data engineering for audit and analytics systems.
+      </p>
+      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
+        <span class="rounded border border-border px-2 py-1">Python</span>
+        <span class="rounded border border-border px-2 py-1">SQL</span>
+        <span class="rounded border border-border px-2 py-1">Pydantic</span>
+        <span class="rounded border border-border px-2 py-1">Pandas</span>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
+      <h3 class="mb-3 font-mono text-lg text-accent">LLM Evaluation</h3>
+      <p class="mb-3 text-sm text-white/80">
+        LLM evaluation pipelines, RLHF task experience, citation measurement,
+        and structured output validation for agentic systems.
+      </p>
+      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
+        <span class="rounded border border-border px-2 py-1">Ollama</span>
+        <span class="rounded border border-border px-2 py-1">OpenAI API</span>
+        <span class="rounded border border-border px-2 py-1">RLHF</span>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
+      <h3 class="mb-3 font-mono text-lg text-accent">DevOps &amp; CI/CD</h3>
+      <p class="mb-3 text-sm text-white/80">
+        GitHub Actions, pre-commit hooks, automated testing, public/private repo
+        boundaries, and reproducible research pipelines.
+      </p>
+      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
+        <span class="rounded border border-border px-2 py-1">GitHub Actions</span>
+        <span class="rounded border border-border px-2 py-1">Docker</span>
+        <span class="rounded border border-border px-2 py-1">Azure</span>
+        <span class="rounded border border-border px-2 py-1">uv</span>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
+      <h3 class="mb-3 font-mono text-lg text-accent">Domain Expertise</h3>
+      <p class="mb-3 text-sm text-white/80">
+        Financial services (Series 7, 66, SIE), wealth management operations,
+        compliance workflows, and cross-cultural communication across US, China,
+      </p>
+      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
+        <span class="rounded border border-border px-2 py-1">FINRA Licensed</span>
+        <span class="rounded border border-border px-2 py-1">Mandarin</span>
+        <span class="rounded border border-border px-2 py-1">Bilingual</span>
+      </div>
+    </div>
+  </div>
 </section>

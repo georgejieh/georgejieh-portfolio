@@ -2,24 +2,42 @@
 ---
 
 <section
-	data-testid="about"
-	id="about"
-	class="mb-10 flex flex-col items-center justify-center lg:mb-0 lg:h-screen lg:flex-row"
+  data-testid="about"
+  id="about"
+  class="flex flex-col items-start justify-center py-20 md:py-28"
 >
-	<div class="mb-10 flex w-full flex-col items-center justify-center lg:mb-0 lg:w-1/2">
-		<h2 class="font-monospace text-2xl text-orange lg:text-4xl">About me</h2>
-		<span class="mb-6 ml-2 h-1 w-10 bg-orange"></span>
-	</div>
+  <div class="mb-8 flex items-center gap-3">
+    <span class="font-mono text-accent text-sm">01.</span>
+    <h2 class="font-mono text-2xl text-white lg:text-3xl">About</h2>
+    <div class="h-px flex-1 bg-border"></div>
+  </div>
 
-	<div class="w-full text-justify text-white lg:w-1/2">
-		<p class="mb-4">
-			I specialize in developing end-to-end solutions that leverage data for intelligent decision-making. With expertise in machine learning, AI, and software engineering, I build products that transform data into actionable insights.
-		</p>
-		<p class="mb-4">
-			My work spans across financial analysis, climate prediction, game strategy optimization, and other data-intensive applications. I strive to create systems that are not only analytically powerful but also accessible and user-friendly.
-		</p>
-		<p class="mb-4">
-			I'm constantly exploring new technologies and methodologies to enhance my skills and deliver more effective solutions. Whether it's implementing complex algorithms, designing efficient data pipelines, or creating intuitive interfaces, I approach each project with a commitment to excellence and innovation.
-		</p>
-	</div>
+  <div class="w-full max-w-3xl space-y-4 text-left text-white/90">
+    <p>
+      In the Bay Area, I build AI systems that are production-minded rather than
+      demo-minded. My work spans agent infrastructure, meaning grounding in
+      language models, and orchestration frameworks for multi-agent workflows.
+    </p>
+    <p>
+      Currently rebuilding two past projects to production quality: an LLM-powered
+      financial news analyzer and a machine learning model for wine grape climate
+      suitability. Both are being rewritten with better data, structured output,
+      and production-grade code.
+    </p>
+    <p>
+      Beyond the projects on this page, I operate a multi-agent AI orchestration
+      system built on Hermes Agent that manages household operations, vault
+      knowledge management, and automated briefings. It runs six specialized
+      agent profiles with model routing, scheduled jobs, and cross-agent
+      delegation. It is not a portfolio piece, but it is the system I use every
+      day to think and work.
+    </p>
+    <p class="text-muted">
+      Background: BrainStation Data Science bootcamp, Azure certifications, UC
+      Berkeley East Asian studies, and 17 years in financial services
+      operations. The finance career taught me systems thinking under
+      regulatory pressure. The AI work is where the systems thinking goes when
+      the constraints are open-ended.
+    </p>
+  </div>
 </section>

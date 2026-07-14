@@ -3,50 +3,59 @@ import Card from '@components/ui/Card.astro';
 import { getCollection } from 'astro:content';
 
 const projects = await getCollection('projects', ({ data }) => {
-	return !data.inProgress;
+  return data.featured;
 });
+
+const sortedProjects = projects.sort((a, b) => (a.data.sortOrder || 0) - (b.data.sortOrder || 0));
 ---
 
 <section
-	data-testid="projects"
-	id="projects"
-	class="mb-10 flex flex-col items-center justify-center md:mb-0 md:h-screen"
+  data-testid="projects"
+  id="projects"
+  class="flex flex-col items-start justify-center py-20 md:py-28"
 >
-	<h2 class="font-monospace text-2xl text-orange lg:text-4xl">Projects</h2>
-	<span class="mb-10 h-1 w-10 bg-orange"></span>
-	<div class="mb-10 flex w-full flex-col flex-wrap items-center md:flex-row">
-		{
-			projects.map((project) => (
-				<Card
-					url={project.data.link}
-					title={project.data.title}
-					description={project.data.description}
-					alt={project.data.img_alt}
-					tags={project.data.tags}
-				/>
-			))
-		}
-	</div>
-	<a
-		href="https://github.com/georgejieh?tab=repositories"
-		target="_blank"
-		rel="noopener"
-		class="flex flex-row text-white hover:text-orange"
-		aria-label="link to repositories"
-	>
-		View full projects archive
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke-width="1.5"
-			stroke="currentColor"
-			class="ml-1 h-6 w-6"
-		>
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"></path>
-		</svg>
-	</a>
+  <div class="mb-8 flex items-center gap-3 w-full">
+    <span class="font-mono text-accent text-sm">03.</span>
+    <h2 class="font-mono text-2xl text-white lg:text-3xl">Projects</h2>
+    <div class="h-px flex-1 bg-border"></div>
+  </div>
+
+  <div class="flex w-full flex-col gap-6 lg:gap-8">
+    {sortedProjects.map((project) => (
+      <Card
+        title={project.data.title}
+        description={project.data.description}
+        longDescription={project.data.longDescription}
+        tags={project.data.tags}
+        status={project.data.status}
+        url={project.data.link}
+        repo={project.data.repo}
+      />
+    ))}
+  </div>
+
+  <div class="mt-12 w-full">
+    <a
+      href="https://github.com/georgejieh?tab=repositories"
+      target="_blank"
+      rel="noopener"
+      class="inline-flex items-center gap-2 font-mono text-sm text-muted transition-colors hover:text-accent"
+    >
+      View all repositories on GitHub
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="h-4 w-4"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+        ></path>
+      </svg>
+    </a>
+  </div>
 </section>

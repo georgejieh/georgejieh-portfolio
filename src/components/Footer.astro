@@ -1,14 +1,10 @@
-<footer data-testid="footer" class="p-6 text-center text-sm text-black dark:text-white">
-	<p>
-		Copyright © {new Date().getFullYear()}. All rights reserved. Made by <a
-			href="https://github.com/veranikabarel"
-			target="_blank"
-			rel="noopener"
-		>
-			<span class="text-orange"> Veranika Kasparevych</span>
-		</a>
-		Assets designed by <a href="www.freepik.com" target="_blank" rel="noopener"
-			><span class="text-orange">Freepik</span></a
-		>
-	</p>
+<footer data-testid="footer" class="border-t border-border/50 py-8">
+  <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+    <p class="font-mono text-xs text-muted">
+      &copy; {new Date().getFullYear()} George Jieh. Built with Astro.
+    </p>
+    <p class="font-mono text-xs text-muted">
+      <span class="text-accent">~/</span>georgejieh.dev
+    </p>
+  </div>
 </footer>
