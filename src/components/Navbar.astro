@@ -13,6 +13,7 @@ const menuitems = [
       <span class="text-white">~/</span>georgejieh
     </a>
 
+    <!-- Desktop nav -->
     <ul class="hidden items-center gap-6 md:flex">
       {menuitems.map((item) => (
         <li>
@@ -27,13 +28,27 @@ const menuitems = [
       ))}
     </ul>
 
-    <a
-      href="https://github.com/georgejieh"
-      target="_blank"
-      rel="noopener"
-      class="font-mono text-sm text-muted transition-colors hover:text-accent"
-    >
-      GitHub
-    </a>
+    <div class="flex items-center gap-4">
+      <a
+        href="https://github.com/georgejieh"
+        target="_blank"
+        rel="noopener"
+        class="font-mono text-sm text-muted transition-colors hover:text-accent"
+      >
+        GitHub
+      </a>
+    </div>
   </nav>
+
+  <!-- Mobile nav: horizontal scroll row -->
+  <div class="flex gap-4 overflow-x-auto px-5 pb-3 md:hidden">
+    {menuitems.map((item) => (
+      <a
+        href={item.path}
+        class="whitespace-nowrap font-mono text-sm text-muted transition-colors hover:text-accent"
+      >
+        {item.title}
+      </a>
+    ))}
+  </div>
 </header>

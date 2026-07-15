@@ -6,11 +6,11 @@ test.describe('portfolio site', () => {
   });
 
   test('page has correct title and meta', async ({ page }) => {
-    await expect(page).toHaveTitle('George Jieh | AI/ML Developer & Researcher');
+    await expect(page).toHaveTitle('George Jieh | AI/ML Engineer & LLM Evaluation Specialist');
     const metaDescription = page.locator("meta[name='description']");
     await expect(metaDescription).toHaveAttribute(
       'content',
-      'AI/ML developer building production AI systems. AI agent visibility auditing, meaning-grounded language models, and agentic orchestration frameworks.'
+      'AI/ML engineer and LLM evaluation specialist. Former Scale AI Oracle Tier trainer. RLHF training for frontier models, production AI pipelines, and multi-agent orchestration.'
     );
   });
 

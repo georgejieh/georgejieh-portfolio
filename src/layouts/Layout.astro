@@ -7,15 +7,15 @@ export interface LayoutProps {
   title: string;
 }
 
-const { title = 'George Jieh | AI/ML Developer & Researcher' } = Astro.props as LayoutProps;
+const { title = 'George Jieh | AI/ML Engineer & LLM Evaluation Specialist' } = Astro.props as LayoutProps;
 ---
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth" data-testid="html">
   <head>
     <SEO
-      title="George Jieh | AI/ML Developer & Researcher"
-      description="AI/ML developer building production AI systems. AI agent visibility auditing, meaning-grounded language models, and agentic orchestration frameworks."
+      title="George Jieh | AI/ML Engineer & LLM Evaluation Specialist"
+      description="AI/ML engineer and LLM evaluation specialist. Former Scale AI Oracle Tier trainer. RLHF training for frontier models, production AI pipelines, and multi-agent orchestration."
     />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,9 +30,70 @@ const { title = 'George Jieh | AI/ML Developer & Researcher' } = Astro.props as 
     />
 
     <title>{title}</title>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://georgejieh.dev" />
+    <meta property="og:title" content="George Jieh | AI/ML Engineer & LLM Evaluation Specialist" />
+    <meta property="og:description" content="AI/ML engineer and LLM evaluation specialist. Former Scale AI Oracle Tier trainer. RLHF training for frontier models, production AI pipelines, and multi-agent orchestration." />
+    <meta property="og:site_name" content="George Jieh" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="George Jieh | AI/ML Engineer & LLM Evaluation Specialist" />
+    <meta name="twitter:description" content="AI/ML engineer and LLM evaluation specialist. Former Scale AI Oracle Tier trainer. RLHF training for frontier models, production AI pipelines, and multi-agent orchestration." />
+
+    <!-- Structured data for search engines and AI agents -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "George Jieh",
+      "url": "https://georgejieh.dev",
+      "email": "contact@georgejieh.dev",
+      "jobTitle": "AI/ML Engineer & LLM Evaluation Specialist",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "San Francisco",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      },
+      "alumniOf": [
+        {
+          "@type": "EducationalOrganization",
+          "name": "University of California, Berkeley"
+        },
+        {
+          "@type": "EducationalOrganization",
+          "name": "BrainStation"
+        }
+      ],
+      "knowsAbout": [
+        "LLM Evaluation",
+        "RLHF",
+        "Machine Learning",
+        "Python",
+        "PyTorch",
+        "scikit-learn",
+        "H2O AutoML",
+        "OpenAI API",
+        "Ollama",
+        "Multi-agent Orchestration",
+        "Financial Analysis",
+        "FINRA Securities Licensing"
+      ],
+      "sameAs": [
+        "https://github.com/georgejieh",
+        "https://www.linkedin.com/in/george-jieh",
+        "https://huggingface.co/ColdAshSage"
+      ]
+    })} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "George Jieh - AI/ML Engineer & LLM Evaluation Specialist",
+      "url": "https://georgejieh.dev"
+    })} />
   </head>
   <body
-    class="mx-auto max-w-screen-xl bg-black px-5 font-sans text-white xs:text-[16px] md:text-[18px]"
+    class="mx-auto max-w-screen-xl bg-black px-5 font-sans text-white text-[16px] md:text-[18px]"
   >
     <Navbar />
     <slot />

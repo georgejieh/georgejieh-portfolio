@@ -1,0 +1,27 @@
+# George Jieh — AI Lab
+
+> George Jieh is an AI/ML engineer and LLM evaluation specialist based in the Bay Area. Former Scale AI Oracle Tier trainer with 12 RLHF training projects across frontier model labs. Builds production AI pipelines, ML models, and multi-agent orchestration systems.
+
+## What I do
+
+- LLM evaluation and RLHF training for frontier models (OpenAI, Anthropic, Google DeepMind, Meta, Microsoft)
+- Production AI pipelines using Python, OpenAI API, Ollama, and Flask
+- Machine learning with scikit-learn, PyTorch, H2O AutoML, and Keras
+- Multi-agent orchestration across OpenAI Codex, Hermes Agent, and OpenClaw
+
+## Projects
+
+- FreshRSS Financial News Analyzer: Production LLM inference pipeline for financial news analysis
+- Wine Grape Climate Suitability Model: ML pipeline predicting wine grape suitability from climate data
+
+## Contact
+
+- Email: contact@georgejieh.dev
+- GitHub: https://github.com/georgejieh
+- LinkedIn: https://www.linkedin.com/in/george-jieh
+- Hugging Face: https://huggingface.co/ColdAshSage
+- Website: https://georgejieh.dev
+
+## Background
+
+FINRA licensed (Series 7, 66, SIE) with 9 years in wealth management. BrainStation Data Science diploma. Microsoft Certified Azure AI Engineer and Data Scientist Associate. UC Berkeley BA in American Studies. Bilingual English and Mandarin.
