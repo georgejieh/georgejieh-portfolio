@@ -1,0 +1,16 @@
+# Normalize all text files to LF in the repository and on checkout.
+# Stops CRLF/LF churn when files are edited across Windows and Linux tooling.
+* text=auto eol=lf
+
+# Binary files git must never touch.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+*.pdf   binary
