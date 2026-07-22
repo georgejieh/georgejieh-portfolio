@@ -132,9 +132,10 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
         </div>
 
         <p class="mr-fineprint">
-          Compact summary via <span class="mr-code">POST /v1/audit/summary</span>.
-          The full report with per-check evidence and fix guidance is
-          <span class="mr-code">POST /v1/audit</span> &mdash; see the
+          Findings and fixes above come straight from the full report at
+          <span class="mr-code">POST /v1/audit</span>; a compact agent-oriented
+          projection is available at <span class="mr-code">POST /v1/audit/summary</span>.
+          See the
           <a href="https://github.com/georgejieh/MachineRead-Preview" target="_blank" rel="noopener">repository</a>
           for the OpenAPI schema, MCP server card, and Agent Skill package.
         </p>
@@ -513,7 +514,9 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     height: 2px;
     background: var(--accent);
   }
-  .summary-tile span {
+  /* Direct-child label only — must not shrink the number <span> nested
+     inside the score <strong> (that span inherits the big strong size). */
+  .summary-tile > span {
     color: var(--muted);
     font-size: 11px;
     font-weight: 700;
@@ -635,12 +638,23 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
   .action-row {
     display: grid;
     grid-template-columns: 92px minmax(0, 1fr) 64px;
-    gap: 12px;
-    align-items: center;
+    grid-template-areas:
+      "badge title points"
+      "badge detail detail";
+    gap: 8px 12px;
+    align-items: start;
     border: 1px solid var(--border);
     border-radius: 2px;
     background: var(--surface-solid);
-    padding: 12px;
+    padding: 14px;
+  }
+  .action-row .state-badge {
+    grid-area: badge;
+    align-self: start;
+  }
+  .action-row .action-title {
+    grid-area: title;
+    align-self: center;
   }
   .action-row .action-title strong {
     display: block;
@@ -654,11 +668,40 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     font-size: 12px;
   }
   .action-points {
+    grid-area: points;
     justify-self: end;
+    align-self: center;
     color: var(--text);
     font-size: 13px;
     font-variant-numeric: tabular-nums;
     font-weight: 700;
+  }
+  .action-detail {
+    grid-area: detail;
+    display: grid;
+    gap: 6px;
+    margin-top: 2px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+  .action-detail p {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .action-detail .finding {
+    color: var(--muted-strong);
+  }
+  .action-detail .fix {
+    color: var(--text);
+  }
+  .action-detail .fix b {
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 10.5px;
+    margin-right: 6px;
   }
   .state-badge {
     display: inline-flex;
@@ -716,9 +759,12 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     }
     .action-row {
       grid-template-columns: 78px minmax(0, 1fr);
+      grid-template-areas:
+        "badge title"
+        "badge points"
+        "detail detail";
     }
     .action-points {
-      grid-column: 2;
       justify-self: start;
     }
   }
@@ -748,7 +794,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     btn.classList.add('active');
   });
 
-  const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  const esc = (s: string) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
   function normalizeUrl(raw: string): string {
     const t = raw.trim();
@@ -756,20 +802,31 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     return /^https?:\/\//i.test(t) ? t : `https://${t}`;
   }
 
+  // ---- Single source of truth for what is on screen. Exactly one of
+  // {idle, loading, error, results} is ever visible, so the spinner and the
+  // error banner can never linger next to a rendered report. ----
+  type Phase = 'idle' | 'loading' | 'error' | 'results';
+  function setPhase(phase: Phase) {
+    statusWrap.classList.toggle('hidden', phase !== 'loading');
+    errorBox.classList.toggle('hidden', phase !== 'error');
+    results.classList.toggle('hidden', phase !== 'results');
+  }
   function setStatus(msg: string) {
-    statusWrap.classList.remove('hidden');
     statusText.textContent = msg;
+    setPhase('loading');
   }
   function fail(msg: string) {
-    statusWrap.classList.add('hidden');
-    errorBox.classList.remove('hidden');
     errorText.textContent = msg;
+    setPhase('error');
     submitBtn.disabled = false;
   }
 
+  // Best-effort wake for the free-tier host. Returns true once /health is OK.
+  // A false result does NOT mean "give up" — the caller still attempts the
+  // audit, because /health can be flaky while the audit route is already live.
   async function waitForBackend(): Promise<boolean> {
-    const deadline = Date.now() + 90_000;
-    let first = true;
+    const deadline = Date.now() + 120_000;
+    let announced = false;
     while (Date.now() < deadline) {
       try {
         const ctl = new AbortController();
@@ -780,9 +837,9 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
       } catch {
         /* not up yet */
       }
-      if (first) {
+      if (!announced) {
         setStatus('Backend is waking from sleep (free-tier host) — up to a minute');
-        first = false;
+        announced = true;
       }
       await new Promise((r) => setTimeout(r, 4_000));
     }
@@ -795,74 +852,113 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     seo: 'Traditional SEO',
   };
 
-  function render(data: any) {
-    const s = data.scores;
-    (document.getElementById('r-overall') as HTMLElement).textContent = String(s.overall.earned);
-    (document.getElementById('r-overall-sub') as HTMLElement).textContent = `of ${s.overall.max} weighted points`;
-    (document.getElementById('r-essentials') as HTMLElement).textContent = String(s.essentials.percent);
-    (document.getElementById('r-agent') as HTMLElement).textContent = String(s.agent_readiness.percent);
+  const stateRank: Record<string, number> = { fail: 0, warn: 1, partial: 2 };
 
-    const be = data.benchmarks?.essentials;
-    const ba = data.benchmarks?.agent_readiness;
-    (document.getElementById('r-essentials-sub') as HTMLElement).textContent = be
-      ? `p${be.percentile} vs ${be.peer_count} peers · median ${be.median_percent}%`
-      : `${s.essentials.earned}/${s.essentials.max} points`;
-    (document.getElementById('r-agent-sub') as HTMLElement).textContent = ba
-      ? `p${ba.percentile} vs ${ba.peer_count} peers · median ${ba.median_percent}%`
-      : `${s.agent_readiness.earned}/${s.agent_readiness.max} probes`;
+  // Render the full /v1/audit contract. The compact /summary route omits the
+  // finding/fix prose, so we consume the full report to explain every failure.
+  function render(data: any) {
+    const pillarScores = data.pillar_scores || {};
+    const pillarMax = data.pillar_max || {};
+    const bench = data.benchmark || null;
+    const agent = data.agent_readiness || {};
+    const agentBench = agent.benchmark || null;
+    const checks: any[] = Array.isArray(data.checks) ? data.checks : [];
+
+    // Essentials % mirrors benchmark.score (free-evidence); agent % mirrors
+    // agent_readiness.score. Fall back gracefully if a field is missing.
+    const essPct = bench ? bench.score : null;
+    const essEarned = bench ? bench.checked_score : null;
+    const essMax = bench ? bench.checked_max : null;
+
+    (document.getElementById('r-overall') as HTMLElement).textContent = String(data.overall_score ?? '–');
+    (document.getElementById('r-overall-sub') as HTMLElement).textContent = 'of 100 weighted points';
+    (document.getElementById('r-essentials') as HTMLElement).textContent = essPct == null ? '–' : String(essPct);
+    (document.getElementById('r-agent') as HTMLElement).textContent = agent.score == null ? '–' : String(agent.score);
+
+    (document.getElementById('r-essentials-sub') as HTMLElement).textContent = bench
+      ? `p${bench.percentile} vs ${bench.benchmark_count} peers · median ${bench.median_score}%`
+      : (essEarned != null ? `${essEarned}/${essMax} points` : '');
+    (document.getElementById('r-agent-sub') as HTMLElement).textContent = agentBench
+      ? `p${agentBench.percentile} vs ${agentBench.benchmark_count} peers · median ${agentBench.median_score}%`
+      : (agent.earned != null ? `${agent.earned}/${agent.max} probes` : '');
 
     const pillarsEl = document.getElementById('r-pillars') as HTMLElement;
-    pillarsEl.innerHTML = Object.entries(s.pillars)
-      .map(([key, p]: [string, any]) => {
-        const pct = p.max ? Math.round((p.earned / p.max) * 100) : 0;
+    pillarsEl.innerHTML = ['off_site', 'scrapability', 'seo']
+      .map((key) => {
+        const earned = pillarScores[key] ?? 0;
+        const max = pillarMax[key] ?? 0;
+        const pct = max ? Math.round((earned / max) * 100) : 0;
         return `
           <div class="preview-bar-row">
             <span>${esc(pillarMeta[key] || key)}</span>
             <div class="preview-bar"><div style="width:${pct}%"></div></div>
-            <span class="bar-val">${p.earned}/${p.max}</span>
+            <span class="bar-val">${earned}/${max}</span>
           </div>`;
       })
       .join('');
 
-    const c = data.checks;
+    // Derive the inventory counts from the check rows themselves.
+    const count = (st: string) => checks.filter((c) => c.state === st).length;
+    const locked = count('locked');
+    const included = checks.length - locked;
     (document.getElementById('r-counts') as HTMLElement).innerHTML = `
-      <span class="inv-chip pass"><strong>${c.pass}</strong> pass</span>
-      <span class="inv-chip partial"><strong>${c.partial}</strong> partial</span>
-      <span class="inv-chip fail"><strong>${c.fail}</strong> fail</span>
-      <span class="inv-chip"><strong>${c.warn}</strong> warn</span>
-      <span class="inv-chip"><strong>${c.included}</strong> checks run</span>
-      <span class="inv-chip"><strong>${c.locked}</strong> locked (paid tiers)</span>`;
+      <span class="inv-chip pass"><strong>${count('pass')}</strong> pass</span>
+      <span class="inv-chip partial"><strong>${count('partial')}</strong> partial</span>
+      <span class="inv-chip fail"><strong>${count('fail')}</strong> fail</span>
+      <span class="inv-chip"><strong>${count('warn')}</strong> warn</span>
+      <span class="inv-chip"><strong>${included}</strong> checks run</span>
+      <span class="inv-chip"><strong>${locked}</strong> locked (paid tiers)</span>`;
+
+    // Needs Attention: every row that ran and did not fully pass, worst first,
+    // each with its own plain-language finding and remediation.
+    const attention = checks
+      .filter((c) => c.state === 'fail' || c.state === 'partial' || c.state === 'warn')
+      .sort((a, b) => {
+        const sr = (stateRank[a.state] ?? 9) - (stateRank[b.state] ?? 9);
+        if (sr !== 0) return sr;
+        const ra = a.max_score ? a.score / a.max_score : 1;
+        const rb = b.max_score ? b.score / b.max_score : 1;
+        if (ra !== rb) return ra - rb;
+        return String(a.check_name).localeCompare(String(b.check_name));
+      });
 
     const wrap = document.getElementById('r-attention-wrap') as HTMLElement;
     const list = document.getElementById('r-attention') as HTMLElement;
-    const attention = data.attention || [];
     if (attention.length) {
       wrap.classList.remove('hidden');
       list.innerHTML = attention
-        .map(
-          (a: any) => `
+        .map((a: any) => {
+          const finding = a.finding ? `<p class="finding">${esc(a.finding)}</p>` : '';
+          const fix = a.fix ? `<p class="fix"><b>Fix</b>${esc(a.fix)}</p>` : '';
+          const detail = finding || fix ? `<div class="action-detail">${finding}${fix}</div>` : '';
+          return `
           <div class="action-row state-${esc(a.state)}">
             <span class="state-badge">${esc(a.state)}</span>
             <div class="action-title">
-              <strong>${esc(a.check_name)}</strong>
+              <strong>${esc(a.label || a.check_name)}</strong>
               <span>${esc(pillarMeta[a.pillar] || a.pillar)} · ${esc(a.effort)} effort</span>
             </div>
-            <span class="action-points">${a.earned}/${a.max}</span>
-          </div>`
-        )
+            <span class="action-points">${a.score}/${a.max_score}</span>
+            ${detail}
+          </div>`;
+        })
         .join('');
     } else {
       wrap.classList.add('hidden');
     }
 
-    statusWrap.classList.add('hidden');
-    results.classList.remove('hidden');
+    setPhase('results');
   }
+
+  // Re-entrancy guard. The free-tier host cold-starts in 30–60s, and during
+  // that wait people click "Run Audit" (or hit Enter) again. Without this, a
+  // second run re-shows the spinner on top of the first run's rendered report
+  // — the "spinner + error + results all at once" symptom. One run at a time.
+  let inFlight = false;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    errorBox.classList.add('hidden');
-    results.classList.add('hidden');
+    if (inFlight) return;
 
     const target = normalizeUrl(urlInput.value);
     if (!target) {
@@ -871,36 +967,60 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     }
     urlInput.value = target;
 
+    inFlight = true;
     submitBtn.disabled = true;
     setStatus('Contacting backend');
 
     const up = await waitForBackend();
-    if (!up) {
-      fail('Backend did not respond. It may be down or still waking — try again in a minute.');
-      return;
-    }
+    // If /health never confirmed, try the audit anyway — the route may be live
+    // even when the health probe is slow. Only a failed audit shows an error.
+    setStatus(
+      up
+        ? 'Auditing — fetching the site the way machines do (typically 10–30s)'
+        : 'Backend slow to confirm — attempting the audit anyway'
+    );
 
-    setStatus('Auditing — fetching the site the way machines do (typically 10–30s)');
     try {
-      const res = await fetch(`${API_BASE}/v1/audit/summary`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: target, preset: selectedPreset }),
-      });
+      const ctl = new AbortController();
+      const timeout = setTimeout(() => ctl.abort(), 90_000);
+      let res: Response;
+      try {
+        res = await fetch(`${API_BASE}/v1/audit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: target, preset: selectedPreset }),
+          signal: ctl.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+
       if (res.status === 429) {
         const body = await res.json().catch(() => ({}));
         fail(`Rate limit reached. Try again in ${body.retry_after ?? 'a few'} seconds.`);
         return;
       }
+      if (res.status === 400 || res.status === 422) {
+        const body = await res.json().catch(() => ({}));
+        fail(typeof body.detail === 'string' ? body.detail : `That URL was rejected (HTTP ${res.status}).`);
+        return;
+      }
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        fail(typeof body.detail === 'string' ? body.detail : `Audit failed (HTTP ${res.status}).`);
+        const detail = typeof body.detail === 'string' ? ` — ${body.detail}` : '';
+        fail(`Audit failed (HTTP ${res.status})${detail}. The free-tier host may still be waking; try again in a minute.`);
         return;
       }
       render(await res.json());
-    } catch {
-      fail('Network error while auditing. Check the URL and try again.');
+    } catch (err) {
+      const aborted = err instanceof DOMException && err.name === 'AbortError';
+      fail(
+        aborted
+          ? 'The audit timed out. The free-tier host may be under load — try again in a minute.'
+          : "Couldn't reach the audit backend. Check your connection and the URL, then try again."
+      );
     } finally {
+      inFlight = false;
       submitBtn.disabled = false;
     }
   });
