@@ -202,6 +202,16 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     z-index: 1;
   }
 
+  /* Local hide utility — do NOT depend on Tailwind's `.hidden` here.
+     .loading-inline / .error-banner / .report-stack each set an explicit
+     `display`, which has the same (0,1,0) specificity as Tailwind's
+     `.hidden` and wins on source order, so toggling `hidden` alone never
+     hides them. This scoped rule outranks those display rules and makes the
+     status/error/results toggle actually take effect. */
+  .mr-app .hidden {
+    display: none !important;
+  }
+
   .mr-app a {
     color: var(--accent);
   }
