@@ -1,4 +1,36 @@
 ---
+const areas = [
+  {
+    title: 'LLM Evaluation & RLHF',
+    body: 'Multi-dimensional rubric-based evaluation, step-level process supervision, adversarial prompt design, reward hacking detection, and structured feedback writing for frontier model training pipelines.',
+    tags: ['RLHF', 'Chain-of-Thought', 'DPO', 'Oracle Tier'],
+  },
+  {
+    title: 'Machine Learning',
+    body: 'Supervised and unsupervised learning, classification on imbalanced datasets, geospatial modeling, AutoML frameworks, and systematic architecture evaluation with documented trade-offs.',
+    tags: ['scikit-learn', 'PyTorch', 'H2O AutoML', 'Keras'],
+  },
+  {
+    title: 'Production AI Pipelines',
+    body: 'LLM inference pipelines with structured output enforcement, dual-prompt architecture, model routing between hosted APIs and local inference, and production reliability safeguards.',
+    tags: ['Python', 'FastAPI', 'OpenAI API', 'Ollama'],
+  },
+  {
+    title: 'Agentic Orchestration',
+    body: 'Multi-agent coding workflows and knowledge management across OpenAI Codex and Hermes Agent. System prompt engineering, scheduled jobs, cross-agent delegation, and MCP server design.',
+    tags: ['OpenAI Codex', 'Hermes Agent', 'MCP', 'Ollama Cloud'],
+  },
+  {
+    title: 'Data Engineering',
+    body: 'Web scraping with anti-bot techniques, SQLite databases with schema migrations, ETL pipelines, and data cleaning with documented rationale for every decision.',
+    tags: ['SQL', 'Selenium', 'Pandas', 'NumPy'],
+  },
+  {
+    title: 'Finance Domain',
+    body: 'FINRA-licensed (Series 7, 66, SIE) with 9 years in wealth management operations, portfolio analysis, and regulatory compliance. Ground-truth domain expertise for AI evaluation in financial contexts.',
+    tags: ['Series 7/66/SIE', 'Portfolio Analysis', 'FINRA/SEC'],
+  },
+];
 ---
 
 <section
@@ -6,100 +38,24 @@
   id="focus"
   class="flex flex-col items-start justify-center py-20 md:py-28"
 >
-  <div class="mb-8 flex items-center gap-3 w-full">
-    <span class="font-mono text-accent text-sm">02.</span>
-    <h2 class="font-mono text-2xl text-white lg:text-3xl">Focus Areas</h2>
+  <div class="mb-10 flex w-full items-baseline gap-4">
+    <h2 class="font-mono text-sm tracking-widest text-accent uppercase">02 / Focus Areas</h2>
     <div class="h-px flex-1 bg-border"></div>
   </div>
 
-  <div class="grid w-full gap-6 md:grid-cols-2 lg:grid-cols-3">
-    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
-      <h3 class="mb-3 font-mono text-lg text-accent">LLM Evaluation &amp; RLHF</h3>
-      <p class="mb-3 text-sm text-white/80">
-        Multi-dimensional rubric-based evaluation, step-level process
-        supervision, adversarial prompt design, reward hacking detection, and
-        structured feedback writing for frontier model training pipelines.
-      </p>
-      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
-        <span class="rounded border border-border px-2 py-1">RLHF</span>
-        <span class="rounded border border-border px-2 py-1">Chain-of-Thought</span>
-        <span class="rounded border border-border px-2 py-1">DPO</span>
-        <span class="rounded border border-border px-2 py-1">Oracle Tier</span>
+  <div class="grid w-full gap-px overflow-hidden border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
+    {areas.map((area) => (
+      <div class="group bg-black p-6 transition-colors hover:bg-surface lg:p-8">
+        <h3 class="mb-3 font-mono text-base text-white transition-colors group-hover:text-accent lg:text-lg">
+          {area.title}
+        </h3>
+        <p class="mb-4 text-sm leading-relaxed text-muted">{area.body}</p>
+        <div class="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-muted/70">
+          {area.tags.map((tag) => (
+            <span class="transition-colors group-hover:text-accent/70">{tag}</span>
+          ))}
+        </div>
       </div>
-    </div>
-
-    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
-      <h3 class="mb-3 font-mono text-lg text-accent">Machine Learning</h3>
-      <p class="mb-3 text-sm text-white/80">
-        Supervised and unsupervised learning, classification on imbalanced
-        datasets, geospatial modeling, AutoML frameworks, and systematic
-        architecture evaluation with documented trade-offs.
-      </p>
-      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
-        <span class="rounded border border-border px-2 py-1">scikit-learn</span>
-        <span class="rounded border border-border px-2 py-1">PyTorch</span>
-        <span class="rounded border border-border px-2 py-1">H2O AutoML</span>
-        <span class="rounded border border-border px-2 py-1">Keras</span>
-      </div>
-    </div>
-
-    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
-      <h3 class="mb-3 font-mono text-lg text-accent">Production AI Pipelines</h3>
-      <p class="mb-3 text-sm text-white/80">
-        LLM inference pipelines, dual-prompt architecture, structured output
-        enforcement, production reliability safeguards, and RAM monitoring with
-        auto-shutdown.
-      </p>
-      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
-        <span class="rounded border border-border px-2 py-1">Python</span>
-        <span class="rounded border border-border px-2 py-1">OpenAI API</span>
-        <span class="rounded border border-border px-2 py-1">Ollama</span>
-        <span class="rounded border border-border px-2 py-1">Flask</span>
-      </div>
-    </div>
-
-    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
-      <h3 class="mb-3 font-mono text-lg text-accent">Agentic Orchestration</h3>
-      <p class="mb-3 text-sm text-white/80">
-        Multi-agent coding workflows and knowledge management across OpenAI
-        Codex, Hermes Agent, and OpenClaw. SOUL.MD system prompt engineering,
-        scheduled jobs, and cross-agent delegation.
-      </p>
-      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
-        <span class="rounded border border-border px-2 py-1">OpenAI Codex</span>
-        <span class="rounded border border-border px-2 py-1">Hermes Agent</span>
-        <span class="rounded border border-border px-2 py-1">OpenClaw</span>
-        <span class="rounded border border-border px-2 py-1">Ollama Cloud</span>
-      </div>
-    </div>
-
-    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
-      <h3 class="mb-3 font-mono text-lg text-accent">Data Engineering</h3>
-      <p class="mb-3 text-sm text-white/80">
-        Web scraping with anti-bot techniques, SQLite databases with schema
-        migrations, ETL pipelines, and data cleaning with documented rationale
-        for every decision.
-      </p>
-      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
-        <span class="rounded border border-border px-2 py-1">SQL</span>
-        <span class="rounded border border-border px-2 py-1">Selenium</span>
-        <span class="rounded border border-border px-2 py-1">Pandas</span>
-        <span class="rounded border border-border px-2 py-1">NumPy</span>
-      </div>
-    </div>
-
-    <div class="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent/40">
-      <h3 class="mb-3 font-mono text-lg text-accent">Finance Domain</h3>
-      <p class="mb-3 text-sm text-white/80">
-        FINRA-licensed (Series 7, 66, SIE) with 9 years in wealth management
-        operations, portfolio analysis, and regulatory compliance. Ground-truth
-        domain expertise for AI evaluation work in financial contexts.
-      </p>
-      <div class="flex flex-wrap gap-2 font-mono text-xs text-muted">
-        <span class="rounded border border-border px-2 py-1">Series 7/66/SIE</span>
-        <span class="rounded border border-border px-2 py-1">Portfolio Analysis</span>
-        <span class="rounded border border-border px-2 py-1">FINRA/SEC</span>
-      </div>
-    </div>
+    ))}
   </div>
 </section>

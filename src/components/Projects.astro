@@ -14,14 +14,18 @@ const sortedProjects = projects.sort((a, b) => (a.data.sortOrder || 0) - (b.data
   id="projects"
   class="flex flex-col items-start justify-center py-20 md:py-28"
 >
-  <div class="mb-8 flex items-center gap-3 w-full">
-    <span class="font-mono text-accent text-sm">03.</span>
-    <h2 class="font-mono text-2xl text-white lg:text-3xl">Projects</h2>
+  <div class="mb-4 flex w-full items-baseline gap-4">
+    <h2 class="font-mono text-sm tracking-widest text-accent uppercase">03 / Selected Work</h2>
     <div class="h-px flex-1 bg-border"></div>
   </div>
 
+  <p class="mb-10 max-w-2xl text-sm leading-relaxed text-muted">
+    Three projects, honestly labeled. One shipped and cleaned for production;
+    two working systems being rebuilt to the same standard.
+  </p>
+
   <div class="flex w-full flex-col gap-6 lg:gap-8">
-    {sortedProjects.map((project) => (
+    {sortedProjects.map((project, i) => (
       <Card
         title={project.data.title}
         description={project.data.description}
@@ -30,6 +34,7 @@ const sortedProjects = projects.sort((a, b) => (a.data.sortOrder || 0) - (b.data
         status={project.data.status}
         url={project.data.link}
         repo={project.data.repo}
+        index={i}
       />
     ))}
   </div>
@@ -41,21 +46,7 @@ const sortedProjects = projects.sort((a, b) => (a.data.sortOrder || 0) - (b.data
       rel="noopener"
       class="inline-flex items-center gap-2 font-mono text-sm text-muted transition-colors hover:text-accent"
     >
-      View all repositories on GitHub
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="h-4 w-4"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-        ></path>
-      </svg>
+      &rarr; View all repositories on GitHub
     </a>
   </div>
 </section>

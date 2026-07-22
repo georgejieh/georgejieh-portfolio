@@ -1,18 +1,19 @@
-# George Jieh — AI Lab
+# George Jieh — AI/ML Engineer & LLM Evaluation Specialist
 
-> George Jieh is an AI/ML engineer and LLM evaluation specialist based in the Bay Area. Former Scale AI Oracle Tier trainer with 12 RLHF training projects across frontier model labs. Builds production AI pipelines, ML models, and multi-agent orchestration systems.
+> George Jieh is an AI/ML engineer and LLM evaluation specialist based in San Francisco. Former Scale AI Oracle Tier trainer and Quality Analyst across 12 RLHF training projects for frontier model labs. Builds production LLM pipelines, ML systems, and multi-agent orchestration.
 
 ## What I do
 
-- LLM evaluation and RLHF training for frontier models (OpenAI, Anthropic, Google DeepMind, Meta, Microsoft)
-- Production AI pipelines using Python, OpenAI API, Ollama, and Flask
+- LLM evaluation and RLHF training for frontier models (data plausibly used by OpenAI, Anthropic, Google DeepMind, Meta, Microsoft)
+- Production AI pipelines using Python, FastAPI, OpenAI API, and Ollama
 - Machine learning with scikit-learn, PyTorch, H2O AutoML, and Keras
-- Multi-agent orchestration across OpenAI Codex, Hermes Agent, and OpenClaw
+- Multi-agent orchestration across OpenAI Codex and Hermes Agent; MCP server design
 
-## Projects
+## Selected work
 
-- FreshRSS Financial News Analyzer: Production LLM inference pipeline for financial news analysis
-- Wine Grape Climate Suitability Model: ML pipeline predicting wine grape suitability from climate data
+- MachineRead — Public Website Audit: shipped public-readiness audit scoring websites for AI visibility, agent accessibility, scrapability, and search discovery. FastAPI + Next.js/TypeScript, 301-test suite, OpenAPI 3.1, MCP server, portable Agent Skill. https://github.com/georgejieh/MachineRead-Preview
+- FreshRSS Financial News Analyzer: LLM inference pipeline for 24-hour financial news analysis with dual-prompt architecture and OpenAI/Ollama model routing. https://github.com/georgejieh/freshrss-ai-summarizer
+- Wine Grape Climate Suitability Model: ML pipeline predicting grape varietal suitability from 60+ years of climate data; being rebuilt to production quality. https://github.com/georgejieh/predicting_grape_suitability_based_on_climate_and_precipitation
 
 ## Contact
 
@@ -24,4 +25,4 @@
 
 ## Background
 
-FINRA licensed (Series 7, 66, SIE) with 9 years in wealth management. BrainStation Data Science diploma. Microsoft Certified Azure AI Engineer and Data Scientist Associate. UC Berkeley BA in American Studies. Bilingual English and Mandarin.
+FINRA licensed (Series 7, 66, SIE) with 9 years in financial services under FINRA/SEC oversight. BrainStation Data Science diploma; 1st place in the Google-sponsored capstone hackathon. Microsoft Certified Azure AI Engineer and Data Scientist Associate. UC Berkeley BA in American Studies. Bilingual English and Mandarin.

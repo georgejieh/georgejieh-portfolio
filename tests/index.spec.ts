@@ -38,7 +38,7 @@ test.describe('portfolio site', () => {
 
   test('project cards are rendered', async ({ page }) => {
     const cards = page.getByTestId('card');
-    await expect(cards).toHaveCount(2);
+    await expect(cards).toHaveCount(3);
   });
 
   test('contact email is correct', async ({ page }) => {
