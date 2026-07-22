@@ -33,14 +33,14 @@ const mobileitems: Leaf[] = menuitems.flatMap((item) =>
     <ul class="hidden items-center gap-6 md:flex">
       {menuitems.map((item) => (
         isGroup(item) ? (
-          <li class="group relative flex items-center">
+          <li class="group relative">
             <button
               type="button"
               aria-haspopup="true"
-              class="inline-flex items-center gap-1 border-0 bg-transparent p-0 font-mono text-sm leading-5 text-muted transition-colors hover:text-accent group-focus-within:text-accent"
+              class="inline-flex items-baseline gap-1 border-0 bg-transparent p-0 font-mono text-sm leading-5 text-muted transition-colors hover:text-accent group-focus-within:text-accent"
             >
               {item.title}
-              <span class="text-[9px] leading-none">&#9662;</span>
+              <span class="text-[9px]">&#9662;</span>
             </button>
             <ul
               class="invisible absolute right-0 top-full z-50 min-w-[210px] rounded-md border border-border/50 bg-black/95 p-1 opacity-0 shadow-lg backdrop-blur-md transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
