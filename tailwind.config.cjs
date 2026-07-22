@@ -21,6 +21,9 @@ module.exports = {
       surfaceLight: '#1c2330',
       border: '#2d333b',
       muted: '#8b949e',
+      warn: '#e3b341',
+      danger: '#f85149',
+      info: '#58a6ff',
       transparent: 'transparent',
     },
     fontFamily: {

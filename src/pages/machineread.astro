@@ -1,0 +1,293 @@
+---
+import Layout from '@layouts/Layout.astro';
+---
+
+<Layout title="MachineRead — Live Audit | George Jieh">
+  <main>
+    <section class="flex min-h-[80vh] flex-col items-start justify-start py-16 md:py-24">
+      <div class="mb-10 flex w-full items-baseline gap-4">
+        <h1 class="font-mono text-sm tracking-widest text-accent uppercase">
+          Project / MachineRead — Live Audit
+        </h1>
+        <div class="h-px flex-1 bg-border"></div>
+      </div>
+
+      <div class="w-full max-w-3xl">
+        <h2 class="mb-4 font-mono text-2xl font-bold text-white md:text-4xl">
+          Audit any public website for AI readiness<span class="animate-blink text-accent">_</span>
+        </h2>
+        <p class="mb-2 leading-relaxed text-muted">
+          MachineRead scans a URL the way machines actually consume it: AI crawler
+          access, scrapability, <span class="font-mono text-sm">llms.txt</span>,
+          structured data, agent protocol surfaces, and the traditional SEO signals
+          AI retrieval still depends on. This live demo runs the free Essentials
+          audit — 13 check groups, 56 checked points — through the same public API
+          documented in the repo.
+        </p>
+        <p class="mb-8 font-mono text-xs tracking-wide text-muted/60 uppercase">
+          Anonymous &middot; rate-limited &middot; no data stored &middot; free-tier
+          hosting may take ~30s to wake
+        </p>
+
+        <form id="audit-form" class="mb-10 flex flex-col gap-4 sm:flex-row">
+          <input
+            id="audit-url"
+            type="url"
+            required
+            placeholder="https://example.com"
+            class="w-full flex-1 border border-border bg-surface px-4 py-3 font-mono text-sm text-white placeholder:text-muted/50 focus:border-accent focus:outline-none"
+          />
+          <select
+            id="audit-preset"
+            class="border border-border bg-surface px-4 py-3 font-mono text-sm text-white focus:border-accent focus:outline-none"
+          >
+            <option value="corporate">corporate</option>
+            <option value="blog">blog</option>
+            <option value="services">services</option>
+            <option value="ecommerce">ecommerce</option>
+            <option value="news">news</option>
+            <option value="saas">saas</option>
+          </select>
+          <button
+            type="submit"
+            id="audit-submit"
+            class="border border-accent bg-accent/10 px-6 py-3 font-mono text-sm font-medium text-accent transition-all hover:bg-accent hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Run Audit &rarr;
+          </button>
+        </form>
+
+        <div id="audit-status" class="mb-8 hidden font-mono text-sm text-muted">
+          <span class="text-accent">&gt;</span>
+          <span id="audit-status-text"></span>
+          <span class="animate-blink text-accent">_</span>
+        </div>
+
+        <div id="audit-error" class="mb-8 hidden border border-danger/40 bg-danger/5 p-4 font-mono text-sm text-danger"></div>
+
+        <div id="audit-results" class="hidden w-full">
+          <div class="mb-8 grid gap-px border border-border bg-border sm:grid-cols-3">
+            <div class="bg-black p-6">
+              <div class="mb-2 font-mono text-xs tracking-widest text-muted uppercase">Overall</div>
+              <div class="font-mono text-3xl text-accent"><span id="r-overall"></span></div>
+              <div class="mt-1 font-mono text-xs text-muted/60" id="r-overall-max"></div>
+            </div>
+            <div class="bg-black p-6">
+              <div class="mb-2 font-mono text-xs tracking-widest text-muted uppercase">Essentials</div>
+              <div class="font-mono text-3xl text-white"><span id="r-essentials"></span>%</div>
+              <div class="mt-1 font-mono text-xs text-muted/60" id="r-essentials-bench"></div>
+            </div>
+            <div class="bg-black p-6">
+              <div class="mb-2 font-mono text-xs tracking-widest text-muted uppercase">Agent Readiness</div>
+              <div class="font-mono text-3xl text-white"><span id="r-agent"></span>%</div>
+              <div class="mt-1 font-mono text-xs text-muted/60" id="r-agent-bench"></div>
+            </div>
+          </div>
+
+          <div class="mb-8 space-y-4" id="r-pillars"></div>
+
+          <div class="mb-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs tracking-wide text-muted uppercase" id="r-counts"></div>
+
+          <div id="r-attention-wrap" class="hidden">
+            <div class="mb-4 flex w-full items-baseline gap-4">
+              <h3 class="font-mono text-xs tracking-widest text-accent uppercase">Needs Attention</h3>
+              <div class="h-px flex-1 bg-border"></div>
+            </div>
+            <div id="r-attention" class="grid gap-px border border-border bg-border"></div>
+          </div>
+
+          <p class="mt-8 font-mono text-xs text-muted/60">
+            Compact summary via <span class="text-muted">POST /v1/audit/summary</span>.
+            The full report with per-check evidence and fix guidance is
+            <span class="text-muted">POST /v1/audit</span> — see the
+            <a href="https://github.com/georgejieh/MachineRead-Preview" target="_blank" rel="noopener" class="text-accent hover:text-accentDim">repo</a>
+            for the OpenAPI schema, MCP server card, and Agent Skill package.
+          </p>
+        </div>
+
+        <div class="mt-12 flex flex-wrap gap-6 font-mono text-sm">
+          <a href="/#projects" class="text-muted transition-colors hover:text-accent">&rarr; Back to Selected Work</a>
+          <a
+            href="https://github.com/georgejieh/MachineRead-Preview"
+            target="_blank"
+            rel="noopener"
+            class="text-muted transition-colors hover:text-accent"
+          >
+            &rarr; Repo
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  // API base: HF Space by default; override for local testing with ?api=http://127.0.0.1:8000
+  const API_BASE =
+    new URLSearchParams(window.location.search).get('api') ||
+    'https://coldashsage-machineread.hf.space';
+
+  const form = document.getElementById('audit-form') as HTMLFormElement;
+  const urlInput = document.getElementById('audit-url') as HTMLInputElement;
+  const presetSel = document.getElementById('audit-preset') as HTMLSelectElement;
+  const submitBtn = document.getElementById('audit-submit') as HTMLButtonElement;
+  const statusWrap = document.getElementById('audit-status') as HTMLElement;
+  const statusText = document.getElementById('audit-status-text') as HTMLElement;
+  const errorBox = document.getElementById('audit-error') as HTMLElement;
+  const results = document.getElementById('audit-results') as HTMLElement;
+
+  const esc = (s: string) =>
+    s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+  function setStatus(msg: string) {
+    statusWrap.classList.remove('hidden');
+    statusText.textContent = msg;
+  }
+
+  function fail(msg: string) {
+    statusWrap.classList.add('hidden');
+    errorBox.classList.remove('hidden');
+    errorBox.textContent = msg;
+    submitBtn.disabled = false;
+  }
+
+  async function waitForBackend(): Promise<boolean> {
+    const deadline = Date.now() + 90_000;
+    let first = true;
+    while (Date.now() < deadline) {
+      try {
+        const ctl = new AbortController();
+        const t = setTimeout(() => ctl.abort(), 8_000);
+        const res = await fetch(`${API_BASE}/health`, { signal: ctl.signal });
+        clearTimeout(t);
+        if (res.ok) return true;
+      } catch {
+        /* not up yet */
+      }
+      if (first) {
+        setStatus('Backend is waking from sleep (free-tier hosting) — this can take up to a minute');
+        first = false;
+      }
+      await new Promise((r) => setTimeout(r, 4_000));
+    }
+    return false;
+  }
+
+  const stateColor: Record<string, string> = {
+    fail: 'text-danger',
+    partial: 'text-warn',
+    warn: 'text-warn',
+  };
+  const stateDot: Record<string, string> = {
+    fail: 'bg-danger',
+    partial: 'bg-warn',
+    warn: 'bg-warn',
+  };
+
+  function render(data: any) {
+    const s = data.scores;
+    (document.getElementById('r-overall') as HTMLElement).textContent = String(s.overall.earned);
+    (document.getElementById('r-overall-max') as HTMLElement).textContent = `of ${s.overall.max} weighted points`;
+    (document.getElementById('r-essentials') as HTMLElement).textContent = String(s.essentials.percent);
+    (document.getElementById('r-agent') as HTMLElement).textContent = String(s.agent_readiness.percent);
+
+    const be = data.benchmarks?.essentials;
+    const ba = data.benchmarks?.agent_readiness;
+    (document.getElementById('r-essentials-bench') as HTMLElement).textContent = be
+      ? `p${be.percentile} vs ${be.peer_count} peers (median ${be.median_percent}%)`
+      : `${s.essentials.earned}/${s.essentials.max} points`;
+    (document.getElementById('r-agent-bench') as HTMLElement).textContent = ba
+      ? `p${ba.percentile} vs ${ba.peer_count} peers (median ${ba.median_percent}%)`
+      : `${s.agent_readiness.earned}/${s.agent_readiness.max} probes`;
+
+    const pillarMeta: Record<string, string> = {
+      off_site: 'Off-Site Presence',
+      scrapability: 'AI Access & Scrapability',
+      seo: 'Traditional SEO',
+    };
+    const pillarsEl = document.getElementById('r-pillars') as HTMLElement;
+    pillarsEl.innerHTML = Object.entries(s.pillars)
+      .map(([key, p]: [string, any]) => {
+        const pct = p.max ? Math.round((p.earned / p.max) * 100) : 0;
+        return `
+          <div>
+            <div class="mb-1 flex items-baseline justify-between font-mono text-xs tracking-wide uppercase">
+              <span class="text-white">${esc(pillarMeta[key] || key)}</span>
+              <span class="text-muted">${p.earned} / ${p.max}</span>
+            </div>
+            <div class="h-2 w-full bg-surface"><div class="h-2 bg-accent" style="width:${pct}%"></div></div>
+          </div>`;
+      })
+      .join('');
+
+    const c = data.checks;
+    (document.getElementById('r-counts') as HTMLElement).innerHTML = `
+      <span class="text-accent">${c.pass} pass</span>
+      <span class="text-warn">${c.partial} partial</span>
+      <span class="text-danger">${c.fail} fail</span>
+      <span>${c.warn} warn</span>
+      <span class="text-muted/60">${c.included} checks run &middot; ${c.locked} locked (paid tiers)</span>`;
+
+    const wrap = document.getElementById('r-attention-wrap') as HTMLElement;
+    const list = document.getElementById('r-attention') as HTMLElement;
+    const attention = data.attention || [];
+    if (attention.length) {
+      wrap.classList.remove('hidden');
+      list.innerHTML = attention
+        .map(
+          (a: any) => `
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 bg-black p-4 font-mono text-xs">
+            <span class="inline-block h-2 w-2 rounded-full ${stateDot[a.state] || 'bg-muted'}"></span>
+            <span class="${stateColor[a.state] || 'text-muted'} uppercase tracking-wide">${esc(a.state)}</span>
+            <span class="text-white">${esc(a.check_name)}</span>
+            <span class="text-muted/60">${esc(a.pillar)}</span>
+            <span class="ml-auto text-muted">${a.earned}/${a.max} &middot; ${esc(a.effort)} effort</span>
+          </div>`
+        )
+        .join('');
+    } else {
+      wrap.classList.add('hidden');
+    }
+
+    statusWrap.classList.add('hidden');
+    results.classList.remove('hidden');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.classList.add('hidden');
+    results.classList.add('hidden');
+    submitBtn.disabled = true;
+    setStatus('Contacting backend');
+
+    const up = await waitForBackend();
+    if (!up) {
+      fail('Backend did not respond. It may be down or still waking — try again in a minute.');
+      return;
+    }
+
+    setStatus('Auditing — fetching the site the way machines do (typically 10–30s)');
+    try {
+      const res = await fetch(`${API_BASE}/v1/audit/summary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlInput.value.trim(), preset: presetSel.value }),
+      });
+      if (res.status === 429) {
+        const body = await res.json().catch(() => ({}));
+        fail(`Rate limit reached. Try again in ${body.retry_after ?? 'a few'} seconds.`);
+        return;
+      }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        fail(typeof body.detail === 'string' ? body.detail : `Audit failed (HTTP ${res.status}).`);
+        return;
+      }
+      render(await res.json());
+    } catch {
+      fail('Network error while auditing. Check the URL and try again.');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>

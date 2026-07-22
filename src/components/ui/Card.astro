@@ -26,13 +26,14 @@ const {
 
 const statusConfig = {
   'shipped': { label: 'Shipped', color: 'text-accent', dot: 'bg-accent' },
-  'in-progress': { label: 'In Progress', color: 'text-yellow-400', dot: 'bg-yellow-400' },
-  'research': { label: 'Research', color: 'text-blue-400', dot: 'bg-blue-400' },
+  'in-progress': { label: 'In Progress', color: 'text-warn', dot: 'bg-warn' },
+  'research': { label: 'Research', color: 'text-info', dot: 'bg-info' },
   'planned': { label: 'Planned', color: 'text-muted', dot: 'bg-muted' },
 };
 
 const sc = statusConfig[status];
 const num = String(index + 1).padStart(3, '0');
+const internalUrl = url && url.startsWith('/');
 ---
 
 <article
@@ -63,11 +64,11 @@ const num = String(index + 1).padStart(3, '0');
         <a
           href={url}
           aria-label={`${title} link`}
-          target="_blank"
-          rel="noopener"
-          class="text-muted transition-colors hover:text-accent"
+          target={internalUrl ? undefined : '_blank'}
+          rel={internalUrl ? undefined : 'noopener'}
+          class="text-accent transition-colors hover:text-accentDim"
         >
-          &rarr; Visit
+          &rarr; {internalUrl ? 'Try It Live' : 'Visit'}
         </a>
       )}
     </div>
