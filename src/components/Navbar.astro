@@ -1,11 +1,26 @@
 ---
-const menuitems = [
+type Leaf = { title: string; path: string };
+type Group = { title: string; children: Leaf[] };
+type Item = Leaf | Group;
+
+const menuitems: Item[] = [
   { title: 'About', path: '/#about' },
   { title: 'Focus', path: '/#focus' },
   { title: 'Projects', path: '/#projects' },
-  { title: 'Demo', path: '/machineread' },
+  {
+    title: 'Demos',
+    children: [{ title: 'MachineRead Preview', path: '/machineread' }],
+  },
   { title: 'Contact', path: '/#contact' },
 ];
+
+const isGroup = (item: Item): item is Group => 'children' in item;
+
+// Mobile is a horizontal scroll strip where a dropdown is awkward, so flatten
+// group parents into their child links — every destination stays one tap away.
+const mobileitems: Leaf[] = menuitems.flatMap((item) =>
+  isGroup(item) ? item.children : [item]
+);
 ---
 
 <header data-testid="header" class="sticky top-0 z-50 border-b border-border/50 bg-black/80 backdrop-blur-md">
@@ -17,15 +32,43 @@ const menuitems = [
     <!-- Desktop nav -->
     <ul class="hidden items-center gap-6 md:flex">
       {menuitems.map((item) => (
-        <li>
-          <a
-            aria-label={`navigation link to ${item.title}`}
-            href={item.path}
-            class="font-mono text-sm text-muted transition-colors hover:text-accent"
-          >
-            {item.title}
-          </a>
-        </li>
+        isGroup(item) ? (
+          <li class="group relative">
+            <button
+              type="button"
+              aria-haspopup="true"
+              class="flex items-center gap-1 font-mono text-sm text-muted transition-colors hover:text-accent group-focus-within:text-accent"
+            >
+              {item.title}
+              <span class="text-[10px] leading-none">&#9662;</span>
+            </button>
+            <ul
+              class="invisible absolute right-0 top-full z-50 min-w-[210px] rounded-md border border-border/50 bg-black/95 p-1 opacity-0 shadow-lg backdrop-blur-md transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+            >
+              {item.children.map((child) => (
+                <li>
+                  <a
+                    aria-label={`navigation link to ${child.title}`}
+                    href={child.path}
+                    class="block rounded px-3 py-2 font-mono text-sm text-muted transition-colors hover:bg-white/5 hover:text-accent"
+                  >
+                    {child.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ) : (
+          <li>
+            <a
+              aria-label={`navigation link to ${item.title}`}
+              href={item.path}
+              class="font-mono text-sm text-muted transition-colors hover:text-accent"
+            >
+              {item.title}
+            </a>
+          </li>
+        )
       ))}
     </ul>
 
@@ -41,9 +84,9 @@ const menuitems = [
     </div>
   </nav>
 
-  <!-- Mobile nav: horizontal scroll row -->
+  <!-- Mobile nav: horizontal scroll row (group parents flattened to children) -->
   <div class="flex gap-4 overflow-x-auto px-5 pb-3 md:hidden">
-    {menuitems.map((item) => (
+    {mobileitems.map((item) => (
       <a
         href={item.path}
         class="whitespace-nowrap font-mono text-sm text-muted transition-colors hover:text-accent"

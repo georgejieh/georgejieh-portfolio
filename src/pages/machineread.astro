@@ -31,6 +31,13 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
             Anonymous &middot; rate-limited &middot; no data stored &middot;
             free-tier host may take ~30s to wake
           </p>
+          <p class="mr-fineprint">
+            This is a static demo page calling a free backend that sleeps
+            between runs, so it is slower and more limited than the real thing.
+            Running MachineRead locally, or on
+            <span class="mr-code">machineread.ai</span> once it launches, does
+            the full audit without the cold starts and rate limits.
+          </p>
         </div>
 
         <form class="audit-form" id="audit-form">
@@ -44,7 +51,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
               autocorrect="off"
               spellcheck="false"
               required
-              placeholder="nike.com"
+              placeholder="https://www.example.com/"
             />
             <button type="submit" id="audit-submit">Run Audit</button>
           </div>
@@ -99,6 +106,15 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
             <strong><span id="r-agent">&ndash;</span>%</strong>
             <p id="r-agent-sub"></p>
           </div>
+        </div>
+
+        <div class="read-note">
+          <b>How to read this</b>
+          A low or partial score can mean the signal is genuinely missing,
+          present but implemented in a way machines can&rsquo;t parse cleanly,
+          or simply not exposed where the audit looks &mdash; a low score is a
+          prompt to check, not a verdict. A pass is the reliable direction: if
+          MachineRead found the signal, an agent almost certainly can too.
         </div>
 
         <div class="panel">
@@ -551,6 +567,26 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     color: var(--muted-strong);
     font-size: 12.5px;
     line-height: 1.5;
+  }
+
+  .read-note {
+    border: 1px dashed var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+    background: var(--surface-muted);
+    padding: 13px 16px;
+    color: var(--muted-strong);
+    font-size: 12.5px;
+    line-height: 1.65;
+  }
+  .read-note b {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--accent);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   .panel {
