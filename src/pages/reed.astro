@@ -6,7 +6,10 @@ import Layout from '@layouts/Layout.astro';
   <main>
     <div class="reed-app">
       <aside class="digest-list" aria-label="Brief list">
-        <h1>REED</h1>
+        <div class="reed-topbar">
+          <h1>REED</h1>
+          <a class="reed-back" href="/#projects">&larr; Portfolio</a>
+        </div>
         <div id="reed-list" class="reed-list-body"></div>
       </aside>
 
@@ -80,6 +83,18 @@ import Layout from '@layouts/Layout.astro';
     border-right: 1px solid var(--border-dark);
   }
 
+  .reed-app .reed-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: var(--surface-inset);
+    border-bottom: 1px solid var(--border-dark);
+  }
+
   .reed-app .digest-list h1 {
     margin: 0;
     padding: 10px 14px;
@@ -88,12 +103,23 @@ import Layout from '@layouts/Layout.astro';
     font-weight: 700;
     letter-spacing: 0.12em;
     color: var(--accent);
-    background: var(--surface-inset);
-    border-bottom: 1px solid var(--border-dark);
     text-transform: uppercase;
-    position: sticky;
-    top: 0;
-    z-index: 2;
+  }
+
+  .reed-app .reed-back {
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .reed-app .reed-back:hover {
+    color: var(--accent);
   }
 
   .reed-app .reed-list-body {
@@ -542,6 +568,49 @@ import Layout from '@layouts/Layout.astro';
     .reed-app .source-grid {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* Full-bleed: neutralize the shared portfolio chrome on this page
+     only. Astro bundles this is:global block solely into the Reed page,
+     so hiding the Navbar/Footer and resetting the body frame here does
+     not touch the rest of the site. */
+  html {
+    background: #07090d;
+  }
+
+  body {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #0a0d12 !important;
+  }
+
+  body > header[data-testid="header"],
+  body > footer[data-testid="footer"] {
+    display: none !important;
+  }
+
+  /* Replace the site's green selection + scrollbar accents with amber. */
+  .reed-app ::selection {
+    background: rgba(255, 176, 0, 0.28);
+    color: var(--text);
+  }
+
+  .reed-app ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .reed-app ::-webkit-scrollbar-track {
+    background: var(--surface-inset);
+  }
+
+  .reed-app ::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+  }
+
+  .reed-app ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
   }
 
   @media (prefers-reduced-motion: reduce) {
