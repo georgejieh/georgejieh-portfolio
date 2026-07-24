@@ -10,8 +10,8 @@ import Layout from '@layouts/Layout.astro';
         <div id="reed-list" class="reed-list-body"></div>
       </aside>
 
-      <section class="digest-reader" aria-label="Brief reader" id="reed-reader">
-        <div class="loading" id="reed-loading">loading briefs...</div>
+      <section class="digest-reader" aria-label="Brief reader" id="reed-reader" aria-busy="true">
+        <div class="loading" id="reed-loading" role="status">loading briefs...</div>
       </section>
     </div>
   </main>
@@ -334,6 +334,16 @@ import Layout from '@layouts/Layout.astro';
     vertical-align: middle;
   }
 
+  .reed-app .delayed-label {
+    display: inline-block;
+    margin-left: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
   .reed-app .snapshot-provenance {
     margin: 8px 0 0;
     font-family: var(--font-mono);
@@ -412,6 +422,24 @@ import Layout from '@layouts/Layout.astro';
   .reed-app .ticker-chip:hover {
     border-color: var(--bullish);
     color: var(--bullish);
+  }
+
+  .reed-app .story-source {
+    margin: 8px 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+  }
+
+  .reed-app .story-source a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+  }
+
+  .reed-app .story-source a:hover {
+    color: var(--accent);
   }
 
   /* Source footer */
@@ -552,6 +580,18 @@ import Layout from '@layouts/Layout.astro';
   let didFirstLoad = false;
   let didAutoRetry = false;
 
+  // Monotonic token to discard stale responses when the user
+  // navigates faster than fetches resolve. Each loadBrief captures
+  // its token; showSuccess/showError only render if the token still
+  // matches. This prevents an older slow response from overwriting a
+  // newer selection.
+  let requestSeq = 0;
+
+  // Cache of validated Digests by id. Avoids re-fetching a brief
+  // that was already pulled for the headline enrichment pass when
+  // the same id is selected as the open brief.
+  const briefCache: Map<string, Digest> = new Map();
+
   // ---- Helpers ----
   const SENTIMENT_COLORS: Record<Sentiment, string> = {
     bullish: 'var(--bullish)',
@@ -573,6 +613,22 @@ import Layout from '@layouts/Layout.astro';
   };
 
   const TILE_ORDER = ['^SPX', '^NDX', '10USY.B', '^VIX'];
+
+  // Allowed URL schemes for source links. Anything else renders the
+  // source as plain text without an anchor; esc() does not catch
+  // javascript: URLs because the colon and alphanumerics contain no
+  // HTML metacharacters.
+  const SAFE_URL_PROTOCOLS = new Set(['http:', 'https:']);
+
+  function isSafeUrl(raw: unknown): raw is string {
+    if (typeof raw !== 'string' || raw.length === 0) return false;
+    try {
+      const u = new URL(raw);
+      return SAFE_URL_PROTOCOLS.has(u.protocol);
+    } catch {
+      return false;
+    }
+  }
 
   function getIdFromUrl(): string | null {
     const params = new URLSearchParams(window.location.search);
@@ -654,15 +710,18 @@ import Layout from '@layouts/Layout.astro';
     }
     const sortedDates = Array.from(groups.keys()).sort((a, b) => (a > b ? -1 : 1));
 
-    let html = '';
+    // role="list" + nested groups keep the ARIA tree coherent for
+    // screen readers; the dashboard's DigestList uses the same
+    // structure (role="list" on the wrapper, plain divs inside).
+    let html = '<div role="list">';
     for (const date of sortedDates) {
       const items = groups.get(date) || [];
-      html += '<div>';
+      html += '<div role="group" aria-label="' + esc(date) + '">';
       html += '<header class="date-header">' + esc(date) + '</header>';
       for (const item of items) {
         const currentAttr =
           selectedId && selectedId === item.id ? ' aria-current="true"' : '';
-        const timeLabel = item.as_of || item.id;
+        const timeLabel = item.as_of || '';
         const headlineLabel = item.headline || item.id;
         html +=
           '<button type="button" role="listitem"' +
@@ -681,6 +740,7 @@ import Layout from '@layouts/Layout.astro';
       }
       html += '</div>';
     }
+    html += '</div>';
     return html;
   }
 
@@ -688,7 +748,8 @@ import Layout from '@layouts/Layout.astro';
     const label = TILE_LABELS[symbol] || symbol;
     const change = value.change_pct ? ' (' + esc(value.change_pct) + ')' : '';
     const dot = value.delayed
-      ? '<span class="delayed-dot" aria-label="delayed"></span>'
+      ? '<span class="delayed-dot" aria-hidden="true"></span>' +
+        '<span class="delayed-label">delayed</span>'
       : '';
     return (
       '<dl class="snapshot-tile">' +
@@ -734,6 +795,12 @@ import Layout from '@layouts/Layout.astro';
       )
       .join('');
     const labelText = SENTIMENT_LABELS[story.sentiment] || story.sentiment;
+    // Source attribution appears as a small mono line under the
+    // summary; uses the safe-URL check so a javascript: URL renders
+    // as plain text rather than a live anchor.
+    const sourceHtml = isSafeUrl(story.source_url)
+      ? '<a href="' + esc(story.source_url) + '" target="_blank" rel="noreferrer noopener">' + esc(story.source_name) + '</a>'
+      : esc(story.source_name);
     return (
       '<article class="story-card"' +
       styleAttr +
@@ -742,11 +809,6 @@ import Layout from '@layouts/Layout.astro';
       '<h3>' +
       esc(story.headline) +
       '</h3>' +
-      '<span class="sentiment-gauge" role="img" aria-label="Sentiment: ' +
-      esc(labelText) +
-      '"' +
-      styleAttr +
-      '></span>' +
       '<p class="story-summary">' +
       esc(story.summary) +
       '</p>' +
@@ -754,10 +816,16 @@ import Layout from '@layouts/Layout.astro';
       '<span class="sentiment-label">' +
       esc(labelText) +
       '</span>' +
+      '<span class="sentiment-gauge" role="img" aria-label="Sentiment: ' +
+      esc(labelText) +
+      '"' +
+      styleAttr +
+      '></span>' +
       '<div class="ticker-chips">' +
       chips +
       '</div>' +
       '</div>' +
+      '<p class="story-source">' + sourceHtml + '</p>' +
       '</div>' +
       '</article>'
     );
@@ -765,16 +833,12 @@ import Layout from '@layouts/Layout.astro';
 
   function renderSourceFooter(sources: Source[]): string {
     const items = sources
-      .map(
-        (s) =>
-          '<li><a href="' +
-          esc(s.url) +
-          '" target="_blank" rel="noreferrer noopener">' +
-          esc(String(s.id)) +
-          '. ' +
-          esc(s.name) +
-          '</a></li>'
-      )
+      .map((s) => {
+        const inner = isSafeUrl(s.url)
+          ? '<a href="' + esc(s.url) + '" target="_blank" rel="noreferrer noopener">' + esc(String(s.id)) + '. ' + esc(s.name) + '</a>'
+          : esc(String(s.id)) + '. ' + esc(s.name);
+        return '<li>' + inner + '</li>';
+      })
       .join('');
     return (
       '<footer class="source-footer">' +
@@ -846,21 +910,30 @@ import Layout from '@layouts/Layout.astro';
 
   function renderLoading(extra?: string): string {
     const tail = extra ? ' ' + esc(extra) : '';
-    return '<div class="loading">loading briefs...' + tail + '</div>';
+    return '<div class="loading" role="status">loading briefs...' + tail + '</div>';
   }
 
-  function renderError(message: string, retryable: boolean): string {
+  function renderError(
+    message: string,
+    retryable: boolean,
+    retryableTag: boolean,
+  ): string {
     const btn = retryable
       ? '<button type="button" data-retry>Retry</button>'
       : '<button type="button" data-back>back to latest</button>';
+    const tag = retryableTag ? ' data-retryable="true"' : '';
     return (
-      '<div class="error">' +
+      '<div class="error" role="alert"' + tag + '>' +
       '<p>Error: ' +
       esc(message) +
       '</p>' +
       btn +
       '</div>'
     );
+  }
+
+  function renderEmpty(): string {
+    return '<div class="empty">No digests in the archive yet.</div>';
   }
 
   // ---- State transitions ----
@@ -874,40 +947,75 @@ import Layout from '@layouts/Layout.astro';
   }
 
   function showLoading(extra?: string): void {
+    readerEl.setAttribute('aria-busy', 'true');
     setReaderHtml(renderLoading(extra));
   }
 
-  function showError(message: string, retryable: boolean): void {
-    setReaderHtml(renderError(message, retryable));
-    setListHtml(
-      retryable
-        ? '<p class="empty">list unavailable</p>'
-        : '<p class="empty">list unavailable</p>'
-    );
+  function showError(message: string, retryable: boolean, retryableTag: boolean): void {
+    readerEl.setAttribute('aria-busy', 'false');
+    setReaderHtml(renderError(message, retryable, retryableTag));
+    // Preserve the list when the error is a brief-level failure
+    // (retryableTag is false for brief 404s, true for transient
+    // network errors). The spec says the list slot shows the same
+    // error line for index-level failures; the orchestrator's
+    // patch notes that brief-level failures leave the list intact.
+    if (retryableTag) {
+      setListHtml('<p class="empty">list unavailable</p>');
+    }
+  }
+
+  function showEmpty(): void {
+    readerEl.setAttribute('aria-busy', 'false');
+    setReaderHtml(renderEmpty());
   }
 
   function showSuccess(digest: Digest): void {
+    readerEl.setAttribute('aria-busy', 'false');
     setReaderHtml(renderReader(digest, digest.as_of));
   }
 
   // ---- Data fetching ----
 
-  async function fetchJson(url: string): Promise<unknown> {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+  // Soft cap on per-request latency. HF's CDN is fast in normal
+  // conditions; 15s matches the spec's "still reading the archive"
+  // soft signal; the catch path transitions to the error state.
+  const FETCH_TIMEOUT_MS = 15000;
+
+  async function fetchJson(url: string, opts: { cache?: RequestCache } = {}): Promise<unknown> {
+    const res = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      cache: opts.cache ?? 'default',
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
     if (!res.ok) {
       throw new Error('HTTP ' + res.status);
     }
     return await res.json();
   }
 
+  // The index is the page's data root. cache: 'no-store' busts the
+  // HF CDN cache so a parked tab sees new briefs on the next load.
+  // Briefs are content-addressed by id and can stay cacheable.
   async function loadIndex(): Promise<IndexEntry[]> {
-    const raw = await fetchJson(DATASET_BASE + '/_index.json');
+    const raw = await fetchJson(DATASET_BASE + '/_index.json', { cache: 'no-store' });
     return parseIndexEntries(raw);
   }
 
-  // Fetches a brief and returns only the headline. Used to enrich the
-  // list rows with real headlines (the index carries id + as_of only).
-  // Returns the id as a fallback if the brief is unreachable.
+  // Fetches a brief and caches the validated Digest. The list
+  // enrichment pass and the open pass both call this; the second
+  // call is a Map hit and does not re-fetch.
+  async function loadBrief(id: string): Promise<Digest> {
+    const cached = briefCache.get(id);
+    if (cached) return cached;
+    const raw = await fetchJson(DATASET_BASE + '/' + id + '.json');
+    const validated = validateDigestShape(raw);
+    briefCache.set(id, validated);
+    return validated;
+  }
+
+  // For the list's headline enrichment pass, a transient failure on
+  // a single brief must not block the whole list. Returns the id
+  // as a fallback label.
   async function loadBriefHeadline(id: string): Promise<string> {
     try {
       const brief = await loadBrief(id);
@@ -917,8 +1025,6 @@ import Layout from '@layouts/Layout.astro';
     }
   }
 
-  // Fetches the index, then enriches each entry with the corresponding
-  // brief's headline. The list cap is 20 entries, matching the spec.
   async function loadIndexWithHeadlines(): Promise<
     Array<IndexEntry & { headline?: string }>
   > {
@@ -930,12 +1036,15 @@ import Layout from '@layouts/Layout.astro';
     return capped.map((e, i) => ({ ...e, headline: headlines[i] }));
   }
 
-  async function loadBrief(id: string): Promise<Digest> {
-    const raw = await fetchJson(DATASET_BASE + '/' + id + '.json');
-    return validateDigestShape(raw);
-  }
-
   // ---- Orchestration ----
+
+  // Stamps the current request sequence. Captures at fetch start so
+  // that a slow earlier response resolving after a newer selection
+  // is silently dropped (the captured seq no longer matches).
+  function nextSeq(): number {
+    requestSeq += 1;
+    return requestSeq;
+  }
 
   async function init(): Promise<void> {
     const requestedId = getIdFromUrl();
@@ -944,14 +1053,16 @@ import Layout from '@layouts/Layout.astro';
     const run = async (): Promise<void> => {
       try {
         let openId: string;
-        let briefPromise: Promise<Digest>;
 
         if (requestedId) {
-          // Deep link: fetch index (with headlines) and the open brief in parallel.
+          // Deep link: fetch index (with headlines) and the open
+          // brief in parallel. Both go through the cache.
+          const seq = nextSeq();
           const [idx, brief] = await Promise.all([
             loadIndexWithHeadlines(),
             loadBrief(requestedId),
           ]);
+          if (seq !== requestSeq) return;
           entries = idx;
           openId = requestedId;
           setListHtml(renderList(entries, openId));
@@ -961,25 +1072,35 @@ import Layout from '@layouts/Layout.astro';
         }
 
         // Default load: index (with headlines) first, then latest brief.
+        const seq = nextSeq();
         const idx = await loadIndexWithHeadlines();
+        if (seq !== requestSeq) return;
         entries = idx;
         if (entries.length === 0) {
-          showError('dataset is empty', false);
+          showEmpty();
           return;
         }
         openId = entries[0].id;
-        briefPromise = loadBrief(openId);
+        // The open brief is already in the cache (loadIndexWithHeadlines
+        // fetched it). Show the list immediately, then resolve the
+        // brief in the background.
         setListHtml(renderList(entries, openId));
-        const brief = await briefPromise;
+        const brief = await loadBrief(openId);
+        if (seq !== requestSeq) return;
         showSuccess(brief);
         currentId = openId;
       } catch (err) {
-        const msg =
-          err instanceof Error ? err.message : 'dataset unreachable';
+        const msg = err instanceof Error ? err.message : 'dataset unreachable';
         if (msg.startsWith('HTTP 404') && requestedId) {
-          showError('brief ' + requestedId + ' not in dataset', false);
+          // Brief-level 404 (deep link to a removed brief): keep
+          // the list intact, show the back-to-latest control.
+          showError('brief ' + requestedId + ' not in dataset', false, false);
+        } else if (msg.startsWith('HTTP 404') && entries.length === 0) {
+          // Index 404 with no entries: empty archive.
+          showEmpty();
         } else {
-          showError('dataset unreachable', true);
+          // Transient or transport error: list unavailable, retryable.
+          showError('dataset unreachable', true, true);
         }
       }
     };
@@ -990,23 +1111,39 @@ import Layout from '@layouts/Layout.astro';
       // run() handles its own errors; if anything else escaped, fall through
     }
 
-    // One automatic retry on first paint only, after a 2-second delay.
-    if (!didFirstLoad && !didAutoRetry && readerEl.querySelector('.error')) {
-      didAutoRetry = true;
-      showLoading();
-      await new Promise((r) => setTimeout(r, 2000));
-      try {
-        await run();
-      } catch {
-        /* run() handles its own errors */
+    // Soft "still reading" signal at 15s (matches the FETCH_TIMEOUT_MS
+    // cap so the user sees something before the hard error state).
+    const stillReadingTimer = window.setTimeout(() => {
+      if (readerEl.querySelector('.loading')) {
+        showLoading('(still reading the archive...)');
+      }
+    }, FETCH_TIMEOUT_MS);
+
+    // One automatic retry on first paint only, after a 2-second
+    // delay, and only for transient network errors (tagged with
+    // data-retryable="true"). 404s and empty archives do not retry.
+    if (!didFirstLoad && !didAutoRetry) {
+      const errorEl = readerEl.querySelector('.error[data-retryable="true"]');
+      if (errorEl) {
+        didAutoRetry = true;
+        showLoading();
+        await new Promise((r) => setTimeout(r, 2000));
+        try {
+          await run();
+        } catch {
+          /* run() handles its own errors */
+        }
       }
     }
+    window.clearTimeout(stillReadingTimer);
     didFirstLoad = true;
   }
 
   // ---- Event wiring ----
 
-  // List clicks set ?d=<id> and re-fetch only the reader.
+  // List clicks set ?d=<id> and re-fetch only the reader. The
+  // requestSeq check inside showSuccess/showError drops the result
+  // if a newer selection is in flight.
   listEl.addEventListener('click', async (e: Event) => {
     const target = e.target as HTMLElement | null;
     if (!target) return;
@@ -1016,22 +1153,23 @@ import Layout from '@layouts/Layout.astro';
     if (!id || !ID_REGEX.test(id)) return;
     setUrlId(id);
     currentId = id;
-    // Update list selection without re-rendering the whole list shape.
     listEl
       .querySelectorAll('button[aria-current="true"]')
       .forEach((el) => el.removeAttribute('aria-current'));
     btn.setAttribute('aria-current', 'true');
-    // Fetch and render the brief only; the list and freshness are unchanged.
+    const seq = nextSeq();
     try {
       showLoading();
       const brief = await loadBrief(id);
+      if (seq !== requestSeq) return;
       showSuccess(brief);
     } catch (err) {
+      if (seq !== requestSeq) return;
       const msg = err instanceof Error ? err.message : 'dataset unreachable';
       if (msg.startsWith('HTTP 404')) {
-        showError('brief ' + id + ' not in dataset', false);
+        showError('brief ' + id + ' not in dataset', false, false);
       } else {
-        showError('dataset unreachable', true);
+        showError('dataset unreachable', true, true);
       }
     }
   });
@@ -1042,24 +1180,30 @@ import Layout from '@layouts/Layout.astro';
     if (!target) return;
     const retry = target.closest('button[data-retry]') as HTMLElement | null;
     if (retry) {
+      const seq = nextSeq();
       showLoading();
       try {
         const idx = await loadIndexWithHeadlines();
+        if (seq !== requestSeq) return;
         entries = idx;
         if (entries.length === 0) {
-          showError('dataset is empty', false);
+          showEmpty();
           return;
         }
         const id = currentId && entries.some((e) => e.id === currentId)
           ? currentId
           : entries[0].id;
         currentId = id;
+        // Clear ?d= when retrying lands on the latest brief and the
+        // user was not deep-linked; otherwise preserve the deep link.
         setUrlId(id === entries[0].id && !getIdFromUrl() ? null : id);
         setListHtml(renderList(entries, currentId));
         const brief = await loadBrief(currentId);
+        if (seq !== requestSeq) return;
         showSuccess(brief);
       } catch {
-        showError('dataset unreachable', true);
+        if (seq !== requestSeq) return;
+        showError('dataset unreachable', true, true);
       }
       return;
     }
@@ -1067,13 +1211,16 @@ import Layout from '@layouts/Layout.astro';
     if (back) {
       setUrlId(null);
       currentId = null;
-      // Reload the page state from scratch (latest brief).
       void init();
     }
   });
 
-  // Keyboard: arrows + j/k move selection, Enter opens it, Escape clears ?d=.
+  // Keyboard: arrows + j/k move selection, Enter opens, Escape clears ?d=.
+  // Roving focus: the active button is focused so screen readers
+  // announce the selection. Modifier keys and editable targets are
+  // ignored so the handler does not hijack browser/OS shortcuts.
   document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
     const t = e.target;
     if (
       t instanceof HTMLInputElement ||
@@ -1082,6 +1229,7 @@ import Layout from '@layouts/Layout.astro';
     ) {
       return;
     }
+    if (t instanceof HTMLElement && t.isContentEditable) return;
 
     if (entries.length === 0) return;
     const currentIndex = entries.findIndex((entry) => entry.id === currentId);
@@ -1099,8 +1247,9 @@ import Layout from '@layouts/Layout.astro';
         nextIndex = currentIndex < 0 ? 0 : Math.max(0, currentIndex - 1);
         break;
       case 'Enter':
-        // No-op: the active button already opens on click; Enter is a no-op
-        // for buttons inside the list because they handle their own activation.
+        // No-op: the active button already opens on click; Enter is
+        // a no-op for buttons inside the list because they handle
+        // their own activation.
         return;
       case 'Escape':
         e.preventDefault();
@@ -1119,22 +1268,30 @@ import Layout from '@layouts/Layout.astro';
     listEl
       .querySelectorAll('button[aria-current="true"]')
       .forEach((el) => el.removeAttribute('aria-current'));
+    const selectorId = (window.CSS && CSS.escape) ? CSS.escape(next.id) : next.id.replace(/"/g, '\\"');
     const btn = listEl.querySelector(
-      'button[data-id="' + next.id.replace(/"/g, '\\"') + '"]'
+      'button[data-id="' + selectorId + '"]'
     ) as HTMLElement | null;
-    if (btn) btn.setAttribute('aria-current', 'true');
-    // Fetch the new brief.
+    if (btn) {
+      btn.setAttribute('aria-current', 'true');
+      // Roving focus: scroll the active button into view and focus it.
+      btn.scrollIntoView({ block: 'nearest' });
+      btn.focus();
+    }
+    const seq = nextSeq();
     (async () => {
       try {
         showLoading();
         const brief = await loadBrief(next.id);
+        if (seq !== requestSeq) return;
         showSuccess(brief);
       } catch (err) {
+        if (seq !== requestSeq) return;
         const msg = err instanceof Error ? err.message : 'dataset unreachable';
         if (msg.startsWith('HTTP 404')) {
-          showError('brief ' + next.id + ' not in dataset', false);
+          showError('brief ' + next.id + ' not in dataset', false, false);
         } else {
-          showError('dataset unreachable', true);
+          showError('dataset unreachable', true, true);
         }
       }
     })();

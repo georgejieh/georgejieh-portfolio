@@ -92,8 +92,9 @@ export interface IndexEntry {
 }
 
 /** HTML-escape helper. Copied from the structural reference page
- *  (machineread.astro). Same behavior. */
-export function esc(s: string): string {
+ *  (machineread.astro). Same behavior. Accepts unknown to keep the
+ *  call sites honest about nullish inputs. */
+export function esc(s: unknown): string {
   return String(s ?? "").replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
@@ -107,16 +108,19 @@ function isObject(v: unknown): v is Record<string, unknown> {
 
 /** Parses the defensive shape of _index.json. Accepts an array of
  *  {id, as_of} objects (current store shape) or an array of strings
- *  (the dashboard's mistaken cast). Objects are preferred. */
+ *  (the dashboard's mistaken cast). Objects are preferred. Entries
+ *  whose id fails ID_REGEX are dropped, so downstream code can trust
+ *  the id is safe to interpolate into fetch URLs and selectors. */
 export function parseIndexEntries(raw: unknown): IndexEntry[] {
   if (!Array.isArray(raw)) return [];
   const out: IndexEntry[] = [];
   for (const entry of raw) {
     if (isString(entry)) {
-      out.push({ id: entry, as_of: "" });
+      if (ID_REGEX.test(entry)) out.push({ id: entry, as_of: "" });
       continue;
     }
     if (isObject(entry) && isString(entry.id)) {
+      if (!ID_REGEX.test(entry.id)) continue;
       out.push({
         id: entry.id,
         as_of: isString(entry.as_of) ? entry.as_of : "",
@@ -170,6 +174,9 @@ export function validateDigestShape(raw: unknown): Digest {
     }
     if (!Array.isArray(s.tickers)) {
       throw new Error(`stories[${i}].tickers is not an array`);
+    }
+    if (!isString(s.source_name) || !isString(s.source_url)) {
+      throw new Error(`stories[${i}] missing source_name/source_url`);
     }
   }
 
