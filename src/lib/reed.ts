@@ -15,7 +15,7 @@
 
 // Dataset base URL. Change this constant and redeploy to point at a different source.
 export const DATASET_BASE: string =
-  "https://huggingface.co/datasets/PLACEHOLDER_OWNER/PLACEHOLDER_REPO/resolve/main";
+  "https://huggingface.co/datasets/ColdAshSage/reed-digests/raw/main/_index.json";
 
 /** Regex guard for the ?d=<id> query parameter. The store's _make_id
  *  produces YYYY-MM-DD-<session> where session is the normalized
