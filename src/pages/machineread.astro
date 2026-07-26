@@ -31,12 +31,17 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
             Anonymous &middot; rate-limited &middot; no data stored &middot;
             free-tier host may take ~30s to wake
           </p>
+          <p class="mr-live-note">
+            <strong>MachineRead is live at
+              <a href="https://machineread.ai" target="_blank" rel="noopener">machineread.ai</a>.</strong>
+            The Essentials audit runs free there with no account, on
+            always-on infrastructure. Use it for a real audit.
+          </p>
           <p class="mr-fineprint">
-            This is a static demo page calling a free backend that sleeps
-            between runs, so it is slower and more limited than the real thing.
-            Running MachineRead locally, or on
-            <span class="mr-code">machineread.ai</span> once it launches, does
-            the full audit without the cold starts and rate limits.
+            The page you are on is a portfolio demo of the same audit contract,
+            kept here as a working sample. It calls a free-tier backend that
+            sleeps between runs, so it is slower and more rate-limited than the
+            production site.
           </p>
         </div>
 
@@ -153,7 +158,9 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
           projection is available at <span class="mr-code">POST /v1/audit/summary</span>.
           See the
           <a href="https://github.com/georgejieh/MachineRead-Preview" target="_blank" rel="noopener">repository</a>
-          for the OpenAPI schema, MCP server card, and Agent Skill package.
+          for the OpenAPI schema, MCP server card, and Agent Skill package, or
+          the <a href="https://machineread.ai/docs" target="_blank" rel="noopener">docs</a>
+          on the live site.
         </p>
       </div>
     </div>
@@ -330,6 +337,29 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     color: var(--muted);
     font-size: 12px;
     line-height: 1.6;
+  }
+
+  /* Live-product callout: the production site is the real destination,
+     so it outranks the surrounding fineprint visually. */
+  .mr-live-note {
+    margin: 0 0 12px;
+    border: 1px solid var(--border-strong);
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+    background: var(--accent-soft);
+    padding: 12px 14px;
+    color: var(--muted-strong);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .mr-live-note strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+  .mr-live-note a {
+    color: var(--accent-strong) !important;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   /* Command panel */
