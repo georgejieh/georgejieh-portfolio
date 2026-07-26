@@ -988,6 +988,9 @@ import Layout from '@layouts/Layout.astro';
       if (!v) return '';
       return renderTile(sym, v);
     }).join('');
+    // Hide the strip entirely when no tiles have data; this prevents an empty
+    // bordered box from appearing when the market data provider is down.
+    if (!tiles) return '';
     return (
       '<div class="market-snapshot-strip">' +
       '<div class="snapshot-tiles">' +
