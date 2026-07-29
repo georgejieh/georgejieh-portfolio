@@ -49,6 +49,16 @@ test.describe('REED Route-B adapter', () => {
 		expect(parseDigestList([latestDigest, historicDigest])).toEqual([latestDigest, historicDigest]);
 	});
 
+	test('uses neutral analysis defaults while a legacy digest is still deploying', () => {
+		const { market_sentiment, market_relevance, tickers, ...legacyItem } = latestDigest.items[0];
+		const digest = parseDigest({ ...latestDigest, items: [legacyItem] });
+		expect(digest.items[0]).toMatchObject({
+			market_sentiment: 'neutral',
+			market_relevance: '',
+			tickers: [],
+		});
+	});
+
 	test('rejects legacy market fields and incomplete source items', () => {
 		expect(() =>
 			parseDigest({

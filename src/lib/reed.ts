@@ -42,7 +42,13 @@ function requiredString(object: Record<string, unknown>, field: string, context:
 	return value;
 }
 
+function optionalString(object: Record<string, unknown>, field: string, context: string): string {
+	if (object[field] === undefined) return '';
+	return requiredString(object, field, context);
+}
+
 function marketSentiment(object: Record<string, unknown>, context: string): ReedDigestItem['market_sentiment'] {
+	if (object.market_sentiment === undefined) return 'neutral';
 	const value = requiredString(object, 'market_sentiment', context);
 	if (value === 'bullish' || value === 'bearish' || value === 'mixed' || value === 'neutral') return value;
 	throw new Error(`${context}.market_sentiment is invalid`);
@@ -50,6 +56,7 @@ function marketSentiment(object: Record<string, unknown>, context: string): Reed
 
 function tickerList(object: Record<string, unknown>, context: string): string[] {
 	const value = object.tickers;
+	if (value === undefined) return [];
 	if (!Array.isArray(value) || value.some((ticker) => typeof ticker !== 'string')) {
 		throw new Error(`${context}.tickers missing or not a string array`);
 	}
@@ -69,7 +76,7 @@ function parseDigestItem(raw: unknown, index: number): ReedDigestItem {
 		source_url: requiredString(raw, 'source_url', context),
 		published_at: requiredString(raw, 'published_at', context),
 		market_sentiment: marketSentiment(raw, context),
-		market_relevance: requiredString(raw, 'market_relevance', context),
+		market_relevance: optionalString(raw, 'market_relevance', context),
 		tickers: tickerList(raw, context),
 	};
 }
