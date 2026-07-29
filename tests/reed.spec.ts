@@ -1,212 +1,182 @@
 import { expect, test } from '@playwright/test';
-import {
-  ID_REGEX,
-  parseIndexEntries,
-  validateDigestShape,
-} from '../src/lib/reed';
+import { REED_API_ORIGIN, createReedApi, parseDigest, parseDigestList } from '../src/lib/reed';
 
-test.describe('reed reader pure helpers', () => {
-  test('ID_REGEX accepts the five valid session names', () => {
-    expect(ID_REGEX.test('2026-07-21-pre_market')).toBe(true);
-    expect(ID_REGEX.test('2026-07-21-early_market')).toBe(true);
-    expect(ID_REGEX.test('2026-07-21-midday')).toBe(true);
-    expect(ID_REGEX.test('2026-07-21-close')).toBe(true);
-    expect(ID_REGEX.test('2026-07-26-weekend_recap')).toBe(true);
-  });
+const latestDigest = {
+	id: 'digest-2026-07-28-close',
+	source_run_id: 'run-2026-07-28-close',
+	market_window: 'US close',
+	title: 'Megacap earnings lead the close',
+	summary: 'Market coverage centered on earnings and policy headlines.',
+	published_at: '2026-07-28T21:15:00Z',
+	items: [
+		{
+			headline: 'Earnings reports shape the afternoon',
+			summary: 'Large technology companies led the final hours of trading coverage.',
+			source_name: 'Reuters',
+			source_url: 'https://www.reuters.com/markets/example',
+			published_at: '2026-07-28T20:45:00Z',
+			market_sentiment: 'bullish',
+			market_relevance: 'Points to stronger earnings support for large technology shares.',
+			tickers: ['MSFT'],
+		},
+	],
+};
 
-  test('ID_REGEX rejects traversal, wrong shape, and empty ids', () => {
-    expect(ID_REGEX.test('')).toBe(false);
-    expect(ID_REGEX.test('../etc/passwd')).toBe(false);
-    expect(ID_REGEX.test('2026-07-21-Pre-Market')).toBe(false);
-    expect(ID_REGEX.test('2026-7-21-pre_market')).toBe(false);
-    expect(ID_REGEX.test('pre_market')).toBe(false);
-    expect(ID_REGEX.test('2026-07-21-pre_market;')).toBe(false);
-    expect(ID_REGEX.test('javascript:alert(1)')).toBe(false);
-  });
+const historicDigest = {
+	id: 'digest-2026-07-28-open',
+	source_run_id: 'run-2026-07-28-open',
+	market_window: 'US open',
+	title: 'Policy headlines set the opening tone',
+	summary: 'The morning brief tracks public market-news reporting.',
+	published_at: '2026-07-28T14:30:00Z',
+	items: [
+		{
+			headline: 'Investors review the latest policy remarks',
+			summary: 'News coverage focused on the policy outlook at the open.',
+			source_name: 'Associated Press',
+			source_url: 'https://apnews.com/article/example',
+			published_at: '2026-07-28T14:10:00Z',
+			market_sentiment: 'neutral',
+			market_relevance: 'May shape expectations for policy-sensitive sectors.',
+			tickers: [],
+		},
+	],
+};
 
-  test('parseIndexEntries accepts the object array shape from the store', () => {
-    const raw = [
-      { id: '2026-07-21-pre_market', as_of: '2026-07-21T08:00:00-04:00' },
-      { id: '2026-07-21-early_market', as_of: '2026-07-21T09:45:00-04:00' },
-    ];
-    const out = parseIndexEntries(raw);
-    expect(out).toEqual([
-      { id: '2026-07-21-pre_market', as_of: '2026-07-21T08:00:00-04:00' },
-      { id: '2026-07-21-early_market', as_of: '2026-07-21T09:45:00-04:00' },
-    ]);
-  });
+test.describe('REED Route-B adapter', () => {
+	test('parses the exact public digest contract', () => {
+		expect(parseDigest(latestDigest)).toEqual(latestDigest);
+		expect(parseDigestList([latestDigest, historicDigest])).toEqual([latestDigest, historicDigest]);
+	});
 
-  test('parseIndexEntries accepts the string array shape (defensive)', () => {
-    const raw = [
-      '2026-07-21-pre_market',
-      '2026-07-21-early_market',
-    ];
-    const out = parseIndexEntries(raw);
-    expect(out).toEqual([
-      { id: '2026-07-21-pre_market', as_of: '' },
-      { id: '2026-07-21-early_market', as_of: '' },
-    ]);
-  });
+	test('rejects legacy market fields and incomplete source items', () => {
+		expect(() =>
+			parseDigest({
+				session: 'close',
+				headline: 'Legacy digest',
+				executive_summary: 'Legacy summary',
+				market_snapshot: { SPX: 'invented' },
+				stories: [],
+			})
+		).toThrow(/digest/);
 
-  test('parseIndexEntries drops entries with invalid ids', () => {
-    const raw = [
-      { id: '2026-07-21-pre_market', as_of: '2026-07-21T08:00:00-04:00' },
-      { id: '../etc/passwd', as_of: '2026-07-21T09:45:00-04:00' },
-      '2026-07-21-midday',
-      '',
-      null,
-      { id: 42, as_of: '2026-07-21T12:30:00-04:00' },
-    ];
-    const out = parseIndexEntries(raw as unknown[]);
-    expect(out.map((e) => e.id)).toEqual([
-      '2026-07-21-pre_market',
-      '2026-07-21-midday',
-    ]);
-  });
+		expect(() =>
+			parseDigest({
+				...latestDigest,
+				items: [{ ...latestDigest.items[0], source_url: undefined }],
+			})
+		).toThrow(/source_url/);
+	});
 
-  test('parseIndexEntries returns [] for non-array input', () => {
-    expect(parseIndexEntries(null)).toEqual([]);
-    expect(parseIndexEntries({})).toEqual([]);
-    expect(parseIndexEntries('not an array')).toEqual([]);
-  });
+	test('uses only anonymous GET requests on the production origin', async () => {
+		const requests: Array<{ url: string; init?: RequestInit }> = [];
+		const fetchStub: typeof fetch = async (input, init) => {
+			requests.push({ url: String(input), init });
+			const body = String(input).endsWith('/api/digests')
+				? [latestDigest]
+				: String(input).includes('/api/digests/')
+					? latestDigest
+					: { status: 'ok' };
+			return new Response(JSON.stringify(body), {
+				status: 200,
+				headers: { 'Content-Type': 'application/json' },
+			});
+		};
 
-  test('validateDigestShape accepts a complete valid digest', () => {
-    const sample = {
-      session: 'pre_market',
-      as_of: '2026-07-21T08:00:00-04:00',
-      headline: 'Futures steady ahead of CPI',
-      executive_summary: 'S&P 500 futures are flat to slightly higher.',
-      market_snapshot: { 'S&P 500 futures': '+0.1%' },
-      market_snapshot_meta: {
-        source: 'stooq',
-        fetched_at: '2026-07-21T08:00:00-04:00',
-        values_raw: {
-          '^SPX': { value: '5287.40', change_pct: '+0.12', delayed: true },
-        },
-        delayed: true,
-      },
-      stories: [
-        {
-          tickers: ['NVDA'],
-          headline: 'NVDA up 2%',
-          summary: 'Nvidia gained on AI capex commentary.',
-          sentiment: 'bullish',
-          source_name: 'Bloomberg',
-          source_url: 'https://www.bloomberg.com/example',
-        },
-      ],
-      themes: ['AI capex'],
-      watch_next_session: ['8:30 ET CPI release'],
-      sources: [{ id: 1, name: 'Bloomberg', url: 'https://www.bloomberg.com/example' }],
-      generation: {
-        provider: 'openrouter',
-        model: 'google/gemini-2.5-flash-lite',
-        agent_turns: 4,
-        tool_calls: 9,
-        scraped_urls: 8,
-        fallback_used: false,
-        duration_ms: 21430,
-      },
-    };
-    expect(() => validateDigestShape(sample)).not.toThrow();
-  });
+		const api = createReedApi(fetchStub);
+		await api.listDigests();
+		await api.getDigest('digest/with spaces');
 
-  test('validateDigestShape throws when stories are missing source_name or source_url', () => {
-    const base = {
-      session: 'pre_market',
-      as_of: '2026-07-21T08:00:00-04:00',
-      headline: 'Futures steady ahead of CPI',
-      executive_summary: 'S&P 500 futures are flat to slightly higher.',
-      market_snapshot: { 'S&P 500 futures': '+0.1%' },
-      market_snapshot_meta: {
-        source: 'stooq',
-        fetched_at: '2026-07-21T08:00:00-04:00',
-        values_raw: {},
-        delayed: true,
-      },
-      watch_next_session: [],
-      sources: [],
-      generation: {
-        provider: 'openrouter',
-        model: 'm',
-        agent_turns: 0,
-        tool_calls: 0,
-        scraped_urls: 0,
-        fallback_used: false,
-        duration_ms: 0,
-      },
-    };
-    const missingSourceName = {
-      ...base,
-      stories: [
-        {
-          tickers: ['NVDA'],
-          headline: 'NVDA up 2%',
-          summary: 'Nvidia gained on AI capex commentary.',
-          sentiment: 'bullish',
-          source_url: 'https://www.bloomberg.com/example',
-        },
-      ],
-    };
-    expect(() => validateDigestShape(missingSourceName)).toThrow(/source_name/);
-
-    const missingSourceUrl = {
-      ...base,
-      stories: [
-        {
-          tickers: ['NVDA'],
-          headline: 'NVDA up 2%',
-          summary: 'Nvidia gained on AI capex commentary.',
-          sentiment: 'bullish',
-          source_name: 'Bloomberg',
-        },
-      ],
-    };
-    expect(() => validateDigestShape(missingSourceUrl)).toThrow(/source_url/);
-  });
-
-  test('validateDigestShape throws when market_snapshot_meta.values_raw is missing', () => {
-    const sample = {
-      session: 'pre_market',
-      as_of: '2026-07-21T08:00:00-04:00',
-      headline: 'Futures steady ahead of CPI',
-      executive_summary: 'S&P 500 futures are flat to slightly higher.',
-      market_snapshot: {},
-      market_snapshot_meta: {
-        source: 'stooq',
-        fetched_at: '2026-07-21T08:00:00-04:00',
-        delayed: true,
-      },
-      stories: [],
-      watch_next_session: [],
-      sources: [],
-      generation: {
-        provider: 'p',
-        model: 'm',
-        agent_turns: 0,
-        tool_calls: 0,
-        scraped_urls: 0,
-        fallback_used: false,
-        duration_ms: 0,
-      },
-    };
-    expect(() => validateDigestShape(sample)).toThrow(/values_raw/);
-  });
+		expect(requests.map(({ url }) => url)).toEqual([
+			`${REED_API_ORIGIN}/api/digests`,
+			`${REED_API_ORIGIN}/api/digests/digest%2Fwith%20spaces`,
+		]);
+		for (const request of requests) {
+			expect(request.url.startsWith(REED_API_ORIGIN)).toBe(true);
+			expect(request.init?.method).toBe('GET');
+			expect(request.init?.credentials).toBe('omit');
+			expect(request.init?.body).toBeUndefined();
+			expect(new Headers(request.init?.headers).get('Authorization')).toBeNull();
+			expect(new Headers(request.init?.headers).get('Accept')).toBe('application/json');
+		}
+	});
 });
 
-test.describe('reed reader page', () => {
-  test('loads and clears aria-busy after the first data fetch resolves', async ({
-    page,
-  }) => {
-    // The page is built with a placeholder DATASET_BASE; the fetch
-    // resolves to a 404 (or network error) and the reader transitions
-    // to the error state. Once the operator sets a real dataset URL,
-    // this same test still passes because the success state also
-    // clears aria-busy.
-    await page.goto('/reed');
-    const reader = page.getByLabel('Brief reader');
-    await expect(reader).toBeVisible();
-    await expect(reader).not.toBeEmpty();
-    await expect(reader).toHaveAttribute('aria-busy', 'false', { timeout: 30000 });
-  });
+test.describe('REED reader page', () => {
+	test('shows loading, then the latest published digest and historic digests', async ({ page }) => {
+		let releaseResponse: (() => void) | undefined;
+		const responseGate = new Promise<void>((resolve) => {
+			releaseResponse = resolve;
+		});
+		const requests: string[] = [];
+
+		await page.route(`${REED_API_ORIGIN}/api/**`, async (route) => {
+			requests.push(`${route.request().method()} ${route.request().url()}`);
+			await responseGate;
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				headers: { 'Access-Control-Allow-Origin': '*' },
+				body: JSON.stringify([latestDigest, historicDigest]),
+			});
+		});
+
+		await page.goto('/reed');
+		const reader = page.getByLabel('Brief reader');
+		await expect(reader.getByRole('status')).toContainText('Loading');
+		releaseResponse?.();
+
+		await expect(reader).toHaveAttribute('aria-busy', 'false');
+		await expect(reader.getByRole('heading', { name: latestDigest.title })).toBeVisible();
+		await expect(reader).toContainText('Latest successful published digest');
+		await expect(
+			reader.getByRole('link', { name: latestDigest.items[0].source_name })
+		).toHaveAttribute('href', latestDigest.items[0].source_url);
+		await expect(reader).toContainText('bullish implication');
+		await expect(reader).toContainText('MSFT');
+		await expect(reader).toContainText(latestDigest.items[0].market_relevance);
+		await expect(page.getByText(historicDigest.title)).toBeVisible();
+		await page.getByRole('button', { name: new RegExp(historicDigest.title) }).click();
+		await expect(reader.getByRole('heading', { name: historicDigest.title })).toBeVisible();
+		await expect(reader).toContainText('Historic digest');
+
+		expect(requests).toEqual([`GET ${REED_API_ORIGIN}/api/digests`]);
+		await expect(reader).toContainText('neutral implication');
+		await expect(reader).toContainText(historicDigest.items[0].market_relevance);
+	});
+
+	test('shows the honest empty state when no brief has been published', async ({ page }) => {
+		await page.route(`${REED_API_ORIGIN}/api/digests`, (route) =>
+			route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				headers: { 'Access-Control-Allow-Origin': '*' },
+				body: '[]',
+			})
+		);
+
+		await page.goto('/reed');
+		await expect(page.getByRole('status')).toHaveText('No published brief yet.');
+		await expect(page.getByLabel('Brief reader')).toHaveAttribute('aria-busy', 'false');
+	});
+
+	test('shows unavailable with a working retry', async ({ page }) => {
+		let attempts = 0;
+		await page.route(`${REED_API_ORIGIN}/api/digests`, (route) => {
+			attempts += 1;
+			return route.fulfill({
+				status: attempts === 1 ? 503 : 200,
+				contentType: 'application/json',
+				headers: { 'Access-Control-Allow-Origin': '*' },
+				body: attempts === 1 ? '{}' : JSON.stringify([latestDigest]),
+			});
+		});
+
+		await page.goto('/reed');
+		const alert = page.getByRole('alert');
+		await expect(alert).toContainText('REED is unavailable.');
+		await page.getByRole('button', { name: 'Retry' }).click();
+		await expect(page.getByRole('heading', { name: latestDigest.title })).toBeVisible();
+		expect(attempts).toBe(2);
+	});
 });
