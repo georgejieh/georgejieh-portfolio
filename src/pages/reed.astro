@@ -3,1519 +3,804 @@ import Layout from '@layouts/Layout.astro';
 ---
 
 <Layout title="REED Briefs | George Jieh">
-  <main>
-    <div class="reed-app">
-      <aside class="digest-list" aria-label="Brief list">
-        <div class="reed-topbar">
-          <h1>REED</h1>
-          <a class="reed-back" href="/">&larr; Portfolio</a>
-        </div>
-        <div class="reed-colhead" aria-hidden="true">
-          <span>Session</span>
-          <span class="reed-colhead-time">Time</span>
-        </div>
-        <div id="reed-list" class="reed-list-body"></div>
-      </aside>
+	<main>
+		<div class="reed-app">
+			<aside class="digest-list" aria-label="Published digest list">
+				<div class="reed-topbar">
+					<h1>REED</h1>
+					<a class="reed-back" href="/">&larr; Portfolio</a>
+				</div>
+				<div class="reed-colhead" aria-hidden="true">
+					<span>Market window</span>
+					<span>Published</span>
+				</div>
+				<div id="reed-list" class="reed-list-body"></div>
+			</aside>
 
-      <section class="digest-reader" aria-label="Brief reader" id="reed-reader" aria-busy="true">
-        <div class="loading" id="reed-loading" role="status">loading briefs...</div>
-      </section>
+			<section class="digest-reader" aria-label="Brief reader" id="reed-reader" aria-busy="true">
+				<div class="loading" role="status">Loading published briefs...</div>
+			</section>
 
-      <footer class="reed-statusbar" aria-hidden="true">
-        <span class="sb-cell" id="sb-count">&mdash; briefs</span>
-        <span class="sb-cell sb-source" id="sb-source">source: &mdash;</span>
-        <span class="sb-spacer"></span>
-        <span class="sb-cell sb-conn" id="sb-conn">connecting&hellip;</span>
-        <span class="sb-cell" id="sb-fresh">&mdash;</span>
-      </footer>
-    </div>
-  </main>
+			<footer class="reed-statusbar" aria-label="REED connection status">
+				<span class="sb-cell" id="sb-count">0 briefs</span>
+				<span class="sb-cell sb-source">reed-portfolio-backend.onrender.com</span>
+				<span class="sb-spacer"></span>
+				<span class="sb-cell" id="sb-state" aria-live="polite">Loading</span>
+			</footer>
+		</div>
+	</main>
 </Layout>
 
 <style is:global>
-  .reed-app {
-    color-scheme: dark;
-    --bg: #0a0d12;
-    --surface: #0f141b;
-    --surface-raised: #151c25;
-    --surface-inset: #07090d;
-    --text: #e8edf2;
-    --text-muted: #9aa5b1;
-    --text-dim: #7a8595;
-    --border-dark: #05070a;
-    --border: #26313d;
-    --border-light: #3a4755;
-    --accent: #ffb000;
-    --accent-soft: #302400;
-    --bullish: #00d084;
-    --bearish: #ff4d4d;
-    --neutral: #7a8595;
-    --font-sans: Tahoma, "Segoe UI", Arial, sans-serif;
-    --font-mono: Consolas, "Lucida Console", "Courier New", monospace;
-
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto;
-    height: 100vh;
-    height: 100dvh;
-    position: relative;
-    overflow: hidden;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-sans);
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .reed-app *,
-  .reed-app *::before,
-  .reed-app *::after {
-    box-sizing: border-box;
-  }
-
-  /* Faint CRT scanline wash — subtle phosphor-terminal signature.
-     position:fixed escapes the app's overflow:hidden to cover the
-     viewport; pointer-events:none keeps it purely decorative. */
-  .reed-app::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.022) 0,
-      rgba(255, 255, 255, 0.022) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-  }
-
-  /* Status bar spans both columns on the bottom grid row. */
-  .reed-app .reed-statusbar {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: stretch;
-    gap: 4px;
-    padding: 3px 5px;
-    background: var(--surface-raised);
-    border-top: 1px solid var(--border-light);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--text-dim);
-  }
-
-  .reed-app .sb-cell {
-    padding: 2px 10px;
-    background: var(--surface-inset);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .reed-app .sb-source {
-    min-width: 0;
-    flex: 0 1 auto;
-  }
-
-  .reed-app .sb-spacer {
-    flex: 1 1 auto;
-  }
-
-  .reed-app .sb-conn.ok {
-    color: var(--bullish);
-  }
-
-  .reed-app .sb-conn.err {
-    color: var(--bearish);
-  }
-
-  .reed-app a {
-    color: inherit;
-    font: inherit;
-  }
-
-  .reed-app a {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 2px;
-  }
-
-  .reed-app :focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  /* List rail */
-  .reed-app .digest-list {
-    display: grid;
-    grid-template-rows: auto auto 1fr;
-    min-height: 0;
-    overflow: hidden;
-    background: var(--surface-inset);
-    border-right: 1px solid var(--border-dark);
-  }
-
-  /* Outlook-style raised column header, pinned above the scroll area. */
-  .reed-app .reed-colhead {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    background: var(--surface-raised);
-    border-bottom: 1px solid var(--border-dark);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .reed-app .reed-colhead span {
-    padding: 4px 14px;
-    border-top: 1px solid var(--border-light);
-    border-right: 1px solid var(--border-dark);
-  }
-
-  .reed-app .reed-colhead-time::after {
-    content: " \25B4";
-    color: var(--accent);
-  }
-
-  .reed-app .reed-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    background: var(--surface-inset);
-    border-bottom: 1px solid var(--border-dark);
-  }
-
-  .reed-app .digest-list h1 {
-    margin: 0;
-    padding: 10px 14px;
-    font-family: var(--font-mono);
-    font-size: 0.9375rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--accent);
-    text-transform: uppercase;
-  }
-
-  .reed-app .reed-back {
-    padding: 10px 14px;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .reed-app .reed-back:hover {
-    color: var(--accent);
-  }
-
-  .reed-app .reed-list-body {
-    overflow-y: auto;
-    min-height: 0;
-  }
-
-  .reed-app .date-header {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    padding: 6px 14px;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: var(--surface-inset);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .reed-app .digest-list button[role="listitem"] {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    min-height: 40px;
-    padding: 8px 14px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    border-left: 3px solid transparent;
-    text-align: left;
-    cursor: pointer;
-    color: inherit;
-    font: inherit;
-  }
-
-  .reed-app .digest-list button[role="listitem"]:hover {
-    background: var(--surface-raised);
-  }
-
-  /* Reverse-video selected row — the terminal/Bloomberg signature. */
-  .reed-app .digest-list button[aria-current="true"] {
-    background: var(--accent);
-    border-left-color: #ffffff;
-  }
-
-  .reed-app .digest-list button[aria-current="true"] .item-headline {
-    color: #120a00;
-    font-weight: 700;
-  }
-
-  .reed-app .digest-list button[aria-current="true"] .item-time {
-    color: #241500;
-  }
-
-  .reed-app .item-headline {
-    min-width: 0;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--text);
-    line-height: 1.3;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .reed-app .item-time {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--text-dim);
-    text-align: right;
-  }
-
-  .reed-app .digest-list .empty {
-    padding: 16px 14px;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--text-dim);
-  }
-
-  /* Reader pane */
-  .reed-app .digest-reader {
-    overflow-y: auto;
-    background: var(--surface);
-    border-left: 1px solid var(--border-light);
-    padding: 20px 24px 48px;
-  }
-
-  /* Gradient title bar — Windows-2000 active-title feel, amber-keyed. */
-  .reed-app .reader-titlebar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    max-width: 900px;
-    margin: 0 0 14px;
-    padding: 6px 12px;
-    background: linear-gradient(90deg, var(--accent) 0%, #b57d00 60%, #5c3f00 100%);
-    border-top: 1px solid var(--border-light);
-    border-left: 1px solid var(--border-light);
-    border-right: 1px solid var(--border-dark);
-    border-bottom: 1px solid var(--border-dark);
-  }
-
-  .reed-app .reader-titlebar .rt-title {
-    font-weight: 700;
-    font-size: 0.9375rem;
-    color: #140b00;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.18);
-  }
-
-  .reed-app .reader-titlebar .rt-code {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: #241500;
-    background: rgba(0, 0, 0, 0.14);
-    padding: 2px 8px;
-    border: 1px solid rgba(0, 0, 0, 0.25);
-    white-space: nowrap;
-  }
-
-  .reed-app .reader-header {
-    max-width: 900px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .reed-app .reader-header h2 {
-    margin: 0 0 6px;
-    font-size: clamp(1.75rem, 4vw, 2.75rem);
-    font-weight: 700;
-    line-height: 1.15;
-    color: var(--text);
-  }
-
-  .reed-app .executive-summary {
-    max-width: 72ch;
-    margin: 0 0 20px;
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    color: var(--text);
-  }
-
-  .reed-app .story-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-width: 900px;
-    margin: 0 0 24px;
-  }
-
-  .reed-app .watch-next {
-    max-width: 900px;
-    margin: 0 0 24px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
-  .reed-app .watch-next h3 {
-    margin: 0 0 8px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-
-  .reed-app .watch-next ul {
-    margin: 0;
-    padding-left: 20px;
-  }
-
-  .reed-app .watch-next li {
-    font-size: 0.875rem;
-    line-height: 1.5;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .reed-app .digest-reader .loading,
-  .reed-app .digest-reader .empty {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--text-dim);
-    padding: 24px 0;
-  }
-
-  .reed-app .digest-reader .error {
-    padding: 16px;
-    border: 1px solid var(--bearish);
-    border-left-width: 3px;
-    color: var(--bearish);
-    background: var(--surface-inset);
-  }
-
-  .reed-app .digest-reader .error p {
-    margin: 0 0 12px;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-  }
-
-  .reed-app .digest-reader .error button {
-    padding: 6px 14px;
-    background: var(--surface-raised);
-    color: var(--text);
-    border-top: 1px solid var(--border-light);
-    border-left: 1px solid var(--border-light);
-    border-right: 1px solid var(--border-dark);
-    border-bottom: 1px solid var(--border-dark);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    cursor: pointer;
-  }
-
-  .reed-app .digest-reader .error button:hover {
-    background: var(--accent-soft);
-    color: var(--accent);
-  }
-
-  /* Market snapshot strip */
-  .reed-app .market-snapshot-strip {
-    max-width: 900px;
-    margin: 0 0 24px;
-    padding: 14px 0;
-    border-top: 2px solid var(--border-dark);
-    border-bottom: 2px solid var(--border-dark);
-  }
-
-  .reed-app .snapshot-tiles {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .reed-app .snapshot-tile {
-    margin: 0;
-    padding: 8px 10px;
-    background: var(--surface-inset);
-    border-top: 1px solid var(--border-dark);
-    border-left: 1px solid var(--border-dark);
-    border-right: 1px solid var(--border-light);
-    border-bottom: 1px solid var(--border-light);
-  }
-
-  .reed-app .snapshot-tile dt {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 4px;
-  }
-
-  .reed-app .snapshot-tile dd {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .reed-app .delayed-dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    margin-left: 6px;
-    vertical-align: middle;
-  }
-
-  .reed-app .delayed-label {
-    display: inline-block;
-    margin-left: 6px;
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-
-  .reed-app .snapshot-provenance {
-    margin: 8px 0 0;
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    color: var(--text-dim);
-  }
-
-  /* Story card */
-  .reed-app .story-card {
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--sentiment-color, var(--neutral));
-    background: var(--surface);
-    border-radius: 2px;
-  }
-
-  .reed-app .story-body {
-    padding: 12px;
-  }
-
-  .reed-app .story-body h3 {
-    margin: 0 0 6px;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.3;
-    color: var(--text);
-  }
-
-  .reed-app .story-summary {
-    margin: 8px 0;
-    font-size: 0.875rem;
-    line-height: 1.55;
-    color: var(--text-muted);
-  }
-
-  .reed-app .story-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .reed-app .sentiment-label {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--sentiment-color, var(--neutral));
-  }
-
-  .reed-app .sentiment-gauge {
-    display: inline-block;
-    width: 24px;
-    height: 4px;
-    background: var(--sentiment-color, var(--neutral));
-  }
-
-  .reed-app .ticker-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .reed-app .ticker-chip {
-    display: inline-block;
-    padding: 4px 8px;
-    border-top: 1px solid var(--border-light);
-    border-left: 1px solid var(--border-light);
-    border-right: 1px solid var(--border-dark);
-    border-bottom: 1px solid var(--border-dark);
-    background: var(--surface-raised);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--accent);
-    cursor: default;
-  }
-
-  .reed-app .ticker-chip:hover {
-    color: var(--bullish);
-  }
-
-  .reed-app .story-source {
-    margin: 8px 0 0;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--text-muted);
-  }
-
-  .reed-app .story-source a {
-    color: var(--text-muted);
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 2px;
-  }
-
-  .reed-app .story-source a:hover {
-    color: var(--accent);
-  }
-
-  /* Source footer */
-  .reed-app .source-footer {
-    max-width: 900px;
-    margin: 0 0 24px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
-  .reed-app .source-footer h3 {
-    margin: 0 0 10px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-
-  .reed-app .source-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 16px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .reed-app .source-grid li {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
-
-  .reed-app .source-grid a {
-    color: var(--text);
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 2px;
-  }
-
-  .reed-app .source-grid a:hover {
-    color: var(--accent);
-  }
-
-  /* Narrow screens */
-  @media (max-width: 768px) {
-    .reed-app {
-      grid-template-columns: 1fr;
-      grid-template-rows: 38vh minmax(0, 1fr) auto;
-    }
-
-    .reed-app .digest-list {
-      max-height: 38vh;
-      border-right: none;
-      border-bottom: 1px solid var(--border-dark);
-    }
-
-    .reed-app .digest-reader {
-      border-left: none;
-      padding: 16px 14px 40px;
-    }
-
-    .reed-app .snapshot-tiles {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 640px) {
-    .reed-app .snapshot-tiles {
-      grid-template-columns: 1fr;
-    }
-
-    .reed-app .source-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* Full-bleed: neutralize the shared portfolio chrome on this page
-     only. Astro bundles this is:global block solely into the Reed page,
-     so hiding the Navbar/Footer and resetting the body frame here does
-     not touch the rest of the site. */
-  html {
-    background: #07090d;
-  }
-
-  body {
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #0a0d12 !important;
-  }
-
-  body > header[data-testid="header"],
-  body > footer[data-testid="footer"] {
-    display: none !important;
-  }
-
-  /* Replace the site's green selection + scrollbar accents with amber. */
-  .reed-app ::selection {
-    background: rgba(255, 176, 0, 0.28);
-    color: var(--text);
-  }
-
-  .reed-app ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  .reed-app ::-webkit-scrollbar-track {
-    background: var(--surface-inset);
-  }
-
-  .reed-app ::-webkit-scrollbar-thumb {
-    background: var(--border-light);
-  }
-
-  .reed-app ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .reed-app *,
-    .reed-app *::before,
-    .reed-app *::after {
-      animation: none !important;
-      transition: none !important;
-    }
-  }
+	.reed-app {
+		color-scheme: dark;
+		--bg: #0a0d12;
+		--surface: #0f141b;
+		--surface-raised: #151c25;
+		--surface-inset: #07090d;
+		--text: #e8edf2;
+		--text-muted: #a7b0bb;
+		--text-dim: #7f8996;
+		--border-dark: #05070a;
+		--border: #26313d;
+		--border-light: #3a4755;
+		--accent: #ffb000;
+		--accent-soft: #302400;
+		--ok: #00d084;
+		--error: #ff6262;
+		--font-sans: Tahoma, 'Segoe UI', Arial, sans-serif;
+		--font-mono: Consolas, 'Lucida Console', 'Courier New', monospace;
+
+		display: grid;
+		grid-template-columns: 300px minmax(0, 1fr);
+		grid-template-rows: minmax(0, 1fr) auto;
+		height: 100vh;
+		height: 100dvh;
+		overflow: hidden;
+		background: var(--bg);
+		color: var(--text);
+		font-family: var(--font-sans);
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.reed-app *,
+	.reed-app *::before,
+	.reed-app *::after {
+		box-sizing: border-box;
+	}
+
+	.reed-app::after {
+		content: '';
+		position: fixed;
+		inset: 0;
+		z-index: 40;
+		pointer-events: none;
+		background: repeating-linear-gradient(
+			to bottom,
+			rgba(255, 255, 255, 0.02) 0,
+			rgba(255, 255, 255, 0.02) 1px,
+			transparent 1px,
+			transparent 3px
+		);
+	}
+
+	.reed-app a {
+		color: inherit;
+		text-decoration: underline;
+		text-decoration-style: dotted;
+		text-underline-offset: 3px;
+	}
+
+	.reed-app :focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+	}
+
+	.reed-app .digest-list {
+		display: grid;
+		grid-template-rows: auto auto minmax(0, 1fr);
+		min-height: 0;
+		overflow: hidden;
+		background: var(--surface-inset);
+		border-right: 1px solid var(--border-dark);
+	}
+
+	.reed-app .reed-topbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		border-bottom: 1px solid var(--border-dark);
+	}
+
+	.reed-app .reed-topbar h1 {
+		margin: 0;
+		padding: 10px 14px;
+		color: var(--accent);
+		font-family: var(--font-mono);
+		font-size: 0.9375rem;
+		letter-spacing: 0.12em;
+	}
+
+	.reed-app .reed-back {
+		padding: 10px 14px;
+		color: var(--text-dim);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-decoration: none;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	.reed-app .reed-back:hover {
+		color: var(--accent);
+	}
+
+	.reed-app .reed-colhead {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		background: var(--surface-raised);
+		border-bottom: 1px solid var(--border-dark);
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.625rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.reed-app .reed-colhead span {
+		padding: 4px 14px;
+		border-top: 1px solid var(--border-light);
+		border-right: 1px solid var(--border-dark);
+	}
+
+	.reed-app .reed-list-body {
+		min-height: 0;
+		overflow-y: auto;
+	}
+
+	.reed-app .list-section-label {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		margin: 0;
+		padding: 6px 14px;
+		border-bottom: 1px solid var(--border);
+		background: var(--surface-inset);
+		color: var(--accent);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+
+	.reed-app .digest-list button[data-id] {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 10px;
+		width: 100%;
+		min-height: 58px;
+		padding: 8px 14px;
+		border: 0;
+		border-bottom: 1px solid var(--border);
+		border-left: 3px solid transparent;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+		font: inherit;
+		text-align: left;
+	}
+
+	.reed-app .digest-list button[data-id]:hover {
+		background: var(--surface-raised);
+	}
+
+	.reed-app .digest-list button[data-id][aria-current='true'] {
+		border-left-color: #fff;
+		background: var(--accent);
+	}
+
+	.reed-app .digest-list button[data-id][aria-current='true'] .item-window,
+	.reed-app .digest-list button[data-id][aria-current='true'] .item-title,
+	.reed-app .digest-list button[data-id][aria-current='true'] .item-time {
+		color: #160d00;
+	}
+
+	.reed-app .item-copy {
+		min-width: 0;
+	}
+
+	.reed-app .item-window {
+		display: block;
+		overflow: hidden;
+		color: var(--text);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.reed-app .item-title {
+		display: block;
+		overflow: hidden;
+		color: var(--text-dim);
+		font-size: 0.6875rem;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.reed-app .item-time {
+		color: var(--text-dim);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		text-align: right;
+	}
+
+	.reed-app .digest-reader {
+		overflow-y: auto;
+		padding: 20px 24px 48px;
+		border-left: 1px solid var(--border-light);
+		background: var(--surface);
+	}
+
+	.reed-app .reader-titlebar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		max-width: 900px;
+		margin: 0 0 14px;
+		padding: 6px 12px;
+		border-top: 1px solid var(--border-light);
+		border-right: 1px solid var(--border-dark);
+		border-bottom: 1px solid var(--border-dark);
+		border-left: 1px solid var(--border-light);
+		background: linear-gradient(90deg, var(--accent) 0%, #b57d00 60%, #5c3f00 100%);
+		color: #160d00;
+	}
+
+	.reed-app .reader-titlebar strong {
+		font-size: 0.9375rem;
+	}
+
+	.reed-app .reader-code {
+		overflow: hidden;
+		padding: 2px 8px;
+		border: 1px solid rgba(0, 0, 0, 0.25);
+		background: rgba(0, 0, 0, 0.14);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.reed-app .reader-header {
+		max-width: 900px;
+		margin-bottom: 18px;
+		padding-bottom: 14px;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.reed-app .digest-label {
+		margin: 0 0 6px;
+		color: var(--accent);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+
+	.reed-app .reader-header h2 {
+		margin: 0 0 8px;
+		color: var(--text);
+		font-size: clamp(1.75rem, 4vw, 2.75rem);
+		line-height: 1.15;
+	}
+
+	.reed-app .published-line {
+		margin: 0;
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+	}
+
+	.reed-app .digest-summary {
+		max-width: 72ch;
+		margin: 0 0 24px;
+		color: var(--text);
+		font-size: 0.9375rem;
+		line-height: 1.65;
+	}
+
+	.reed-app .news-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		max-width: 900px;
+	}
+
+	.reed-app .news-item {
+		padding: 14px 16px;
+		border-top: 1px solid var(--border-dark);
+		border-right: 1px solid var(--border-light);
+		border-bottom: 1px solid var(--border-light);
+		border-left: 4px solid var(--accent);
+		background: var(--surface-raised);
+	}
+
+	.reed-app .news-item h3 {
+		margin: 0 0 8px;
+		color: var(--text);
+		font-size: 1rem;
+		line-height: 1.3;
+	}
+
+	.reed-app .news-item-summary {
+		max-width: 76ch;
+		margin: 0 0 8px;
+		color: var(--text-muted);
+		font-size: 0.875rem;
+		line-height: 1.55;
+	}
+
+	.reed-app .market-signals {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin: 0 0 9px;
+	}
+
+	.reed-app .sentiment,
+	.reed-app .ticker-chip {
+		padding: 3px 6px;
+		border: 1px solid var(--border-light);
+		font-family: var(--font-mono);
+		font-size: 0.625rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.reed-app .sentiment-bullish { border-color: #367c62; color: #80d7aa; }
+	.reed-app .sentiment-bearish { border-color: #974e4e; color: #f3a1a1; }
+	.reed-app .sentiment-mixed { border-color: #8b732e; color: #ecd377; }
+	.reed-app .sentiment-neutral { border-color: #566b7e; color: #b6c4cf; }
+	.reed-app .ticker-chip { color: var(--accent); background: var(--surface-inset); }
+
+	.reed-app .market-relevance {
+		max-width: 76ch;
+		margin: 0 0 12px;
+		color: var(--text-dim);
+		font-size: 0.75rem;
+		line-height: 1.5;
+	}
+
+	.reed-app .market-relevance strong { color: var(--text-muted); }
+
+	.reed-app .news-source {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin: 0;
+		color: var(--text-dim);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+	}
+
+	.reed-app .news-source a {
+		color: var(--accent);
+	}
+
+	.reed-app .loading,
+	.reed-app .empty {
+		padding: 24px 0;
+		color: var(--text-dim);
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+	}
+
+	.reed-app .error {
+		max-width: 620px;
+		padding: 16px;
+		border: 1px solid var(--error);
+		border-left-width: 3px;
+		background: var(--surface-inset);
+		color: var(--error);
+	}
+
+	.reed-app .error p {
+		margin: 0 0 12px;
+		font-family: var(--font-mono);
+		font-size: 0.8125rem;
+	}
+
+	.reed-app .error button {
+		padding: 6px 14px;
+		border-top: 1px solid var(--border-light);
+		border-right: 1px solid var(--border-dark);
+		border-bottom: 1px solid var(--border-dark);
+		border-left: 1px solid var(--border-light);
+		background: var(--surface-raised);
+		color: var(--text);
+		cursor: pointer;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+	}
+
+	.reed-app .error button:hover {
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+
+	.reed-app .reed-statusbar {
+		grid-column: 1 / -1;
+		display: flex;
+		align-items: stretch;
+		gap: 4px;
+		padding: 3px 5px;
+		border-top: 1px solid var(--border-light);
+		background: var(--surface-raised);
+		color: var(--text-dim);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+	}
+
+	.reed-app .sb-cell {
+		overflow: hidden;
+		padding: 2px 10px;
+		background: var(--surface-inset);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.reed-app .sb-source {
+		min-width: 0;
+	}
+
+	.reed-app .sb-spacer {
+		flex: 1 1 auto;
+	}
+
+	.reed-app .sb-ok {
+		color: var(--ok);
+	}
+
+	.reed-app .sb-error {
+		color: var(--error);
+	}
+
+	@media (max-width: 760px) {
+		.reed-app {
+			grid-template-columns: 1fr;
+			grid-template-rows: minmax(180px, 36vh) minmax(0, 1fr) auto;
+		}
+
+		.reed-app .digest-list {
+			border-right: 0;
+			border-bottom: 1px solid var(--border-light);
+		}
+
+		.reed-app .digest-reader {
+			padding: 16px 14px 36px;
+			border-left: 0;
+		}
+
+		.reed-app .reed-statusbar {
+			grid-column: 1;
+		}
+
+		.reed-app .sb-source {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.reed-app *,
+		.reed-app *::before,
+		.reed-app *::after {
+			scroll-behavior: auto !important;
+		}
+	}
 </style>
 
 <script>
-  import {
-    DATASET_BASE,
-    ID_REGEX,
-    esc,
-    parseIndexEntries,
-    validateDigestShape,
-    type Digest,
-    type IndexEntry,
-    type Sentiment,
-    type Story,
-    type MarketSnapshotMeta,
-    type MarketSnapshotValue,
-    type Source,
-  } from '../lib/reed';
-
-  // ---- DOM handles ----
-  const listEl = document.getElementById('reed-list') as HTMLElement;
-  const readerEl = document.getElementById('reed-reader') as HTMLElement;
-
-  // Status-bar cells. Purely decorative chrome, so every write is
-  // guarded — a missing element never throws.
-  const sbCountEl = document.getElementById('sb-count');
-  const sbSourceEl = document.getElementById('sb-source');
-  const sbConnEl = document.getElementById('sb-conn');
-  const sbFreshEl = document.getElementById('sb-fresh');
-
-  function setStatusCount(n: number): void {
-    if (sbCountEl) sbCountEl.textContent = n + (n === 1 ? ' brief' : ' briefs');
-  }
-
-  function setStatusConn(ok: boolean): void {
-    if (!sbConnEl) return;
-    sbConnEl.textContent = ok ? '● connected' : '● disconnected';
-    sbConnEl.classList.toggle('ok', ok);
-    sbConnEl.classList.toggle('err', !ok);
-  }
-
-  function setStatusFresh(iso: string): void {
-    if (!sbFreshEl) return;
-    const suffix = isStale(iso, Date.now()) ? ' (stale)' : '';
-    sbFreshEl.textContent = formatAsOf(iso) + suffix;
-  }
-
-  // ---- State ----
-  let entries: Array<IndexEntry & { headline?: string }> = [];
-  let currentId: string | null = null;
-  let didFirstLoad = false;
-  let didAutoRetry = false;
-
-  // Monotonic token to discard stale responses when the user
-  // navigates faster than fetches resolve. Each loadBrief captures
-  // its token; showSuccess/showError only render if the token still
-  // matches. This prevents an older slow response from overwriting a
-  // newer selection.
-  let requestSeq = 0;
-
-  // Cache of validated Digests by id. Avoids re-fetching a brief
-  // that was already pulled for the headline enrichment pass when
-  // the same id is selected as the open brief.
-  const briefCache: Map<string, Digest> = new Map();
-
-  // ---- Helpers ----
-  const SENTIMENT_COLORS: Record<Sentiment, string> = {
-    bullish: 'var(--bullish)',
-    bearish: 'var(--bearish)',
-    neutral: 'var(--neutral)',
-  };
-
-  const SENTIMENT_LABELS: Record<Sentiment, string> = {
-    bullish: 'Bullish',
-    bearish: 'Bearish',
-    neutral: 'Neutral',
-  };
-
-  const SESSION_LABELS: Record<string, string> = {
-    pre_market: 'Pre-Market',
-    early_market: 'Early Market',
-    midday: 'Midday',
-    close: 'Market Close',
-    weekend_recap: 'Weekend Recap',
-  };
-
-  const TILE_LABELS: Record<string, string> = {
-    '^SPX': 'S&P 500',
-    '^NDX': 'Nasdaq 100',
-    '10USY.B': '10Y yield',
-    '^VIX': 'VIX',
-  };
-
-  const TILE_ORDER = ['^SPX', '^NDX', '10USY.B', '^VIX'];
-
-  // Allowed URL schemes for source links. Anything else renders the
-  // source as plain text without an anchor; esc() does not catch
-  // javascript: URLs because the colon and alphanumerics contain no
-  // HTML metacharacters.
-  const SAFE_URL_PROTOCOLS = new Set(['http:', 'https:']);
-
-  function isSafeUrl(raw: unknown): raw is string {
-    if (typeof raw !== 'string' || raw.length === 0) return false;
-    try {
-      const u = new URL(raw);
-      return SAFE_URL_PROTOCOLS.has(u.protocol);
-    } catch {
-      return false;
-    }
-  }
-
-  function getIdFromUrl(): string | null {
-    const params = new URLSearchParams(window.location.search);
-    const raw = params.get('d');
-    if (!raw) return null;
-    if (!ID_REGEX.test(raw)) return null;
-    return raw;
-  }
-
-  function setUrlId(id: string | null): void {
-    const url = new URL(window.location.href);
-    if (id) {
-      url.searchParams.set('d', id);
-    } else {
-      url.searchParams.delete('d');
-    }
-    history.replaceState(null, '', url.toString());
-  }
-
-  function formatAsOf(asOf: string): string {
-    // Expect an ISO 8601 string; produce "YYYY-MM-DD HH:MM:SS UTC".
-    // Falls back to the raw string if parsing fails.
-    const d = new Date(asOf);
-    if (isNaN(d.getTime())) return asOf;
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return (
-      d.getUTCFullYear() +
-      '-' +
-      pad(d.getUTCMonth() + 1) +
-      '-' +
-      pad(d.getUTCDate()) +
-      ' ' +
-      pad(d.getUTCHours()) +
-      ':' +
-      pad(d.getUTCMinutes()) +
-      ':' +
-      pad(d.getUTCSeconds()) +
-      ' UTC'
-    );
-  }
-
-  function isStale(asOf: string, nowMs: number): boolean {
-    const t = new Date(asOf).getTime();
-    if (isNaN(t)) return false;
-    return nowMs - t > 7 * 24 * 60 * 60 * 1000;
-  }
-
-  function sourceProvenanceLabel(): string {
-    // DATASET_BASE is an absolute URL whose path is /datasets/<owner>/<repo>/resolve/main.
-    try {
-      const u = new URL(DATASET_BASE);
-      const parts = u.pathname.split('/').filter(Boolean);
-      // path is ["datasets", "<owner>", "<repo>", "resolve", "main"]
-      const owner = parts[1] || '';
-      const repo = parts[2] || '';
-      if (owner && repo) return 'source: ' + u.host + '/datasets/' + owner + '/' + repo;
-    } catch {
-      /* fall through */
-    }
-    return 'source: ' + DATASET_BASE;
-  }
-
-  // ---- Render functions ----
-
-  function renderList(
-    entriesIn: Array<IndexEntry & { headline?: string }>,
-    selectedId: string | null,
-  ): string {
-    if (entriesIn.length === 0) {
-      return '<p class="empty">No digests yet.</p>';
-    }
-
-    const groups = new Map<string, Array<IndexEntry & { headline?: string }>>();
-    for (const e of entriesIn) {
-      const date = (e.as_of || '').slice(0, 10) || 'unknown';
-      const list = groups.get(date) || [];
-      list.push(e);
-      groups.set(date, list);
-    }
-    const sortedDates = Array.from(groups.keys()).sort((a, b) => (a > b ? -1 : 1));
-
-    // role="list" + nested groups keep the ARIA tree coherent for
-    // screen readers; the dashboard's DigestList uses the same
-    // structure (role="list" on the wrapper, plain divs inside).
-    let html = '<div role="list">';
-    for (const date of sortedDates) {
-      const items = groups.get(date) || [];
-      html += '<div role="group" aria-label="' + esc(date) + '">';
-      html += '<header class="date-header">' + esc(date) + '</header>';
-      for (const item of items) {
-        const currentAttr =
-          selectedId && selectedId === item.id ? ' aria-current="true"' : '';
-        const timeLabel = item.as_of || '';
-        const headlineLabel = item.headline || item.id;
-        html +=
-          '<button type="button" role="listitem"' +
-          currentAttr +
-          ' data-id="' +
-          esc(item.id) +
-          '">';
-        html += '<span class="item-headline">' + esc(headlineLabel) + '</span>';
-        html +=
-          '<time class="item-time" datetime="' +
-          esc(item.as_of) +
-          '">' +
-          esc(timeLabel) +
-          '</time>';
-        html += '</button>';
-      }
-      html += '</div>';
-    }
-    html += '</div>';
-    return html;
-  }
-
-  function renderTile(symbol: string, value: MarketSnapshotValue): string {
-    const label = TILE_LABELS[symbol] || symbol;
-    const change = value.change_pct ? ' (' + esc(value.change_pct) + ')' : '';
-    const dot = value.delayed
-      ? '<span class="delayed-dot" aria-hidden="true"></span>' +
-        '<span class="delayed-label">delayed</span>'
-      : '';
-    return (
-      '<dl class="snapshot-tile">' +
-      '<dt>' +
-      esc(label) +
-      '</dt>' +
-      '<dd>' +
-      esc(value.value) +
-      change +
-      dot +
-      '</dd>' +
-      '</dl>'
-    );
-  }
-
-  function renderMarketStrip(meta: MarketSnapshotMeta): string {
-    const tiles = TILE_ORDER.map((sym) => {
-      const v = meta.values_raw[sym];
-      if (!v) return '';
-      return renderTile(sym, v);
-    }).join('');
-    // Hide the strip entirely when no tiles have data; this prevents an empty
-    // bordered box from appearing when the market data provider is down.
-    if (!tiles) return '';
-    return (
-      '<div class="market-snapshot-strip">' +
-      '<div class="snapshot-tiles">' +
-      tiles +
-      '</div>' +
-      '<p class="snapshot-provenance">from ' +
-      esc(meta.source) +
-      ' at ' +
-      esc(meta.fetched_at) +
-      '</p>' +
-      '</div>'
-    );
-  }
-
-  function renderStoryCard(story: Story): string {
-    const color = SENTIMENT_COLORS[story.sentiment] || 'var(--neutral)';
-    const styleAttr = ' style="--sentiment-color: ' + color + '"';
-    const chips = (story.tickers || [])
-      .map(
-        (sym) =>
-          '<span class="ticker-chip">' + esc(sym) + '</span>'
-      )
-      .join('');
-    const labelText = SENTIMENT_LABELS[story.sentiment] || story.sentiment;
-    // Source attribution appears as a small mono line under the
-    // summary; uses the safe-URL check so a javascript: URL renders
-    // as plain text rather than a live anchor.
-    const sourceHtml = isSafeUrl(story.source_url)
-      ? '<a href="' + esc(story.source_url) + '" target="_blank" rel="noreferrer noopener">' + esc(story.source_name) + '</a>'
-      : esc(story.source_name);
-    return (
-      '<article class="story-card"' +
-      styleAttr +
-      '>' +
-      '<div class="story-body">' +
-      '<h3>' +
-      esc(story.headline) +
-      '</h3>' +
-      '<p class="story-summary">' +
-      esc(story.summary) +
-      '</p>' +
-      '<div class="story-meta">' +
-      '<span class="sentiment-label">' +
-      esc(labelText) +
-      '</span>' +
-      '<span class="sentiment-gauge" role="img" aria-label="Sentiment: ' +
-      esc(labelText) +
-      '"' +
-      styleAttr +
-      '></span>' +
-      '<div class="ticker-chips">' +
-      chips +
-      '</div>' +
-      '</div>' +
-      '<p class="story-source">' + sourceHtml + '</p>' +
-      '</div>' +
-      '</article>'
-    );
-  }
-
-  function renderSourceFooter(sources: Source[]): string {
-    const items = sources
-      .map((s) => {
-        const inner = isSafeUrl(s.url)
-          ? '<a href="' + esc(s.url) + '" target="_blank" rel="noreferrer noopener">' + esc(String(s.id)) + '. ' + esc(s.name) + '</a>'
-          : esc(String(s.id)) + '. ' + esc(s.name);
-        return '<li>' + inner + '</li>';
-      })
-      .join('');
-    return (
-      '<footer class="source-footer">' +
-      '<h3>Sources</h3>' +
-      '<ol class="source-grid">' +
-      items +
-      '</ol>' +
-      '</footer>'
-    );
-  }
-
-  function renderWatchNext(items: string[]): string {
-    const lis = items.map((x) => '<li>' + esc(x) + '</li>').join('');
-    return (
-      '<div class="watch-next">' +
-      '<h3>Watch next session</h3>' +
-      '<ul>' +
-      lis +
-      '</ul>' +
-      '</div>'
-    );
-  }
-
-  function renderReader(digest: Digest): string {
-    const session = digest.session || '';
-    const sessionLabel = SESSION_LABELS[session] || session;
-    const briefCode = digest.id || (digest.as_of.slice(0, 10) + '-' + session);
-    const titlebar =
-      '<div class="reader-titlebar">' +
-      '<span class="rt-title">' +
-      esc(sessionLabel) +
-      ' Brief</span>' +
-      '<span class="rt-code"><time datetime="' +
-      esc(digest.as_of) +
-      '">' +
-      esc(briefCode) +
-      '</time></span>' +
-      '</div>';
-
-    const storyHtml = (digest.stories || [])
-      .map((s) => renderStoryCard(s))
-      .join('');
-
-    return (
-      titlebar +
-      '<header class="reader-header">' +
-      '<h2>' +
-      esc(digest.headline) +
-      '</h2>' +
-      '</header>' +
-      '<p class="executive-summary">' +
-      esc(digest.executive_summary) +
-      '</p>' +
-      renderMarketStrip(digest.market_snapshot_meta) +
-      '<div class="story-list">' +
-      storyHtml +
-      '</div>' +
-      renderSourceFooter(digest.sources || []) +
-      renderWatchNext(digest.watch_next_session || [])
-    );
-  }
-
-  function renderLoading(extra?: string): string {
-    const tail = extra ? ' ' + esc(extra) : '';
-    return '<div class="loading" role="status">loading briefs...' + tail + '</div>';
-  }
-
-  function renderError(
-    message: string,
-    retryable: boolean,
-    retryableTag: boolean,
-  ): string {
-    const btn = retryable
-      ? '<button type="button" data-retry>Retry</button>'
-      : '<button type="button" data-back>back to latest</button>';
-    const tag = retryableTag ? ' data-retryable="true"' : '';
-    return (
-      '<div class="error" role="alert"' + tag + '>' +
-      '<p>Error: ' +
-      esc(message) +
-      '</p>' +
-      btn +
-      '</div>'
-    );
-  }
-
-  function renderEmpty(): string {
-    return '<div class="empty">No digests in the archive yet.</div>';
-  }
-
-  // ---- State transitions ----
-
-  function setReaderHtml(html: string): void {
-    readerEl.innerHTML = html;
-  }
-
-  function setListHtml(html: string): void {
-    listEl.innerHTML = html;
-  }
-
-  function showLoading(extra?: string): void {
-    readerEl.setAttribute('aria-busy', 'true');
-    setReaderHtml(renderLoading(extra));
-  }
-
-  function showError(message: string, retryable: boolean, retryableTag: boolean): void {
-    readerEl.setAttribute('aria-busy', 'false');
-    setReaderHtml(renderError(message, retryable, retryableTag));
-    setStatusConn(false);
-    // Preserve the list when the error is a brief-level failure
-    // (retryableTag is false for brief 404s, true for transient
-    // network errors). The spec says the list slot shows the same
-    // error line for index-level failures; the orchestrator's
-    // patch notes that brief-level failures leave the list intact.
-    if (retryableTag) {
-      setListHtml('<p class="empty">list unavailable</p>');
-    }
-  }
-
-  function showEmpty(): void {
-    readerEl.setAttribute('aria-busy', 'false');
-    setReaderHtml(renderEmpty());
-    setStatusCount(0);
-    setStatusConn(true);
-  }
-
-  function showSuccess(digest: Digest): void {
-    readerEl.setAttribute('aria-busy', 'false');
-    setReaderHtml(renderReader(digest));
-    setStatusCount(entries.length);
-    setStatusFresh(digest.as_of);
-    setStatusConn(true);
-  }
-
-  // ---- Data fetching ----
-
-  // Soft cap on per-request latency. HF's CDN is fast in normal
-  // conditions; 15s matches the spec's "still reading the archive"
-  // soft signal; the catch path transitions to the error state.
-  const FETCH_TIMEOUT_MS = 15000;
-
-  async function fetchJson(url: string, opts: { cache?: RequestCache } = {}): Promise<unknown> {
-    const res = await fetch(url, {
-      headers: { Accept: 'application/json' },
-      cache: opts.cache ?? 'default',
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
-    if (!res.ok) {
-      throw new Error('HTTP ' + res.status);
-    }
-    return await res.json();
-  }
-
-  // The index is the page's data root. cache: 'no-store' busts the
-  // HF CDN cache so a parked tab sees new briefs on the next load.
-  // Briefs are content-addressed by id and can stay cacheable.
-  async function loadIndex(): Promise<IndexEntry[]> {
-    const raw = await fetchJson(DATASET_BASE + '/_index.json', { cache: 'no-store' });
-    return parseIndexEntries(raw);
-  }
-
-  // Fetches a brief and caches the validated Digest. The list
-  // enrichment pass and the open pass both call this; the second
-  // call is a Map hit and does not re-fetch.
-  async function loadBrief(id: string): Promise<Digest> {
-    const cached = briefCache.get(id);
-    if (cached) return cached;
-    const raw = await fetchJson(DATASET_BASE + '/' + id + '.json');
-    const validated = validateDigestShape(raw);
-    briefCache.set(id, validated);
-    return validated;
-  }
-
-  // For the list's headline enrichment pass, a transient failure on
-  // a single brief must not block the whole list. Returns the id
-  // as a fallback label.
-  async function loadBriefHeadline(id: string): Promise<string> {
-    try {
-      const brief = await loadBrief(id);
-      return brief.headline || id;
-    } catch {
-      return id;
-    }
-  }
-
-  async function loadIndexWithHeadlines(): Promise<
-    Array<IndexEntry & { headline?: string }>
-  > {
-    const idx = await loadIndex();
-    const capped = idx.slice(0, 20);
-    const headlines = await Promise.all(
-      capped.map((e) => loadBriefHeadline(e.id)),
-    );
-    return capped.map((e, i) => ({ ...e, headline: headlines[i] }));
-  }
-
-  // ---- Orchestration ----
-
-  // Stamps the current request sequence. Captures at fetch start so
-  // that a slow earlier response resolving after a newer selection
-  // is silently dropped (the captured seq no longer matches).
-  function nextSeq(): number {
-    requestSeq += 1;
-    return requestSeq;
-  }
-
-  async function init(): Promise<void> {
-    const requestedId = getIdFromUrl();
-    if (sbSourceEl) sbSourceEl.textContent = sourceProvenanceLabel();
-    showLoading();
-
-    const run = async (): Promise<void> => {
-      try {
-        let openId: string;
-
-        if (requestedId) {
-          // Deep link: fetch index (with headlines) and the open
-          // brief in parallel. Both go through the cache.
-          const seq = nextSeq();
-          const [idx, brief] = await Promise.all([
-            loadIndexWithHeadlines(),
-            loadBrief(requestedId),
-          ]);
-          if (seq !== requestSeq) return;
-          entries = idx;
-          openId = requestedId;
-          setListHtml(renderList(entries, openId));
-          showSuccess(brief);
-          currentId = openId;
-          return;
-        }
-
-        // Default load: index (with headlines) first, then latest brief.
-        const seq = nextSeq();
-        const idx = await loadIndexWithHeadlines();
-        if (seq !== requestSeq) return;
-        entries = idx;
-        if (entries.length === 0) {
-          showEmpty();
-          return;
-        }
-        openId = entries[0].id;
-        // The open brief is already in the cache (loadIndexWithHeadlines
-        // fetched it). Show the list immediately, then resolve the
-        // brief in the background.
-        setListHtml(renderList(entries, openId));
-        const brief = await loadBrief(openId);
-        if (seq !== requestSeq) return;
-        showSuccess(brief);
-        currentId = openId;
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'dataset unreachable';
-        if (msg.startsWith('HTTP 404') && requestedId) {
-          // Brief-level 404 (deep link to a removed brief): keep
-          // the list intact, show the back-to-latest control.
-          showError('brief ' + requestedId + ' not in dataset', false, false);
-        } else if (msg.startsWith('HTTP 404') && entries.length === 0) {
-          // Index 404 with no entries: empty archive.
-          showEmpty();
-        } else {
-          // Transient or transport error: list unavailable, retryable.
-          showError('dataset unreachable', true, true);
-        }
-      }
-    };
-
-    try {
-      await run();
-    } catch {
-      // run() handles its own errors; if anything else escaped, fall through
-    }
-
-    // Soft "still reading" signal at 15s (matches the FETCH_TIMEOUT_MS
-    // cap so the user sees something before the hard error state).
-    const stillReadingTimer = window.setTimeout(() => {
-      if (readerEl.querySelector('.loading')) {
-        showLoading('(still reading the archive...)');
-      }
-    }, FETCH_TIMEOUT_MS);
-
-    // One automatic retry on first paint only, after a 2-second
-    // delay, and only for transient network errors (tagged with
-    // data-retryable="true"). 404s and empty archives do not retry.
-    if (!didFirstLoad && !didAutoRetry) {
-      const errorEl = readerEl.querySelector('.error[data-retryable="true"]');
-      if (errorEl) {
-        didAutoRetry = true;
-        showLoading();
-        await new Promise((r) => setTimeout(r, 2000));
-        try {
-          await run();
-        } catch {
-          /* run() handles its own errors */
-        }
-      }
-    }
-    window.clearTimeout(stillReadingTimer);
-    didFirstLoad = true;
-  }
-
-  // ---- Event wiring ----
-
-  // List clicks set ?d=<id> and re-fetch only the reader. The
-  // requestSeq check inside showSuccess/showError drops the result
-  // if a newer selection is in flight.
-  listEl.addEventListener('click', async (e: Event) => {
-    const target = e.target as HTMLElement | null;
-    if (!target) return;
-    const btn = target.closest('button[role="listitem"]') as HTMLElement | null;
-    if (!btn) return;
-    const id = btn.getAttribute('data-id');
-    if (!id || !ID_REGEX.test(id)) return;
-    setUrlId(id);
-    currentId = id;
-    listEl
-      .querySelectorAll('button[aria-current="true"]')
-      .forEach((el) => el.removeAttribute('aria-current'));
-    btn.setAttribute('aria-current', 'true');
-    const seq = nextSeq();
-    try {
-      showLoading();
-      const brief = await loadBrief(id);
-      if (seq !== requestSeq) return;
-      showSuccess(brief);
-    } catch (err) {
-      if (seq !== requestSeq) return;
-      const msg = err instanceof Error ? err.message : 'dataset unreachable';
-      if (msg.startsWith('HTTP 404')) {
-        showError('brief ' + id + ' not in dataset', false, false);
-      } else {
-        showError('dataset unreachable', true, true);
-      }
-    }
-  });
-
-  // Reader-level clicks for retry / back-to-latest buttons.
-  readerEl.addEventListener('click', async (e: Event) => {
-    const target = e.target as HTMLElement | null;
-    if (!target) return;
-    const retry = target.closest('button[data-retry]') as HTMLElement | null;
-    if (retry) {
-      const seq = nextSeq();
-      showLoading();
-      try {
-        const idx = await loadIndexWithHeadlines();
-        if (seq !== requestSeq) return;
-        entries = idx;
-        if (entries.length === 0) {
-          showEmpty();
-          return;
-        }
-        const id = currentId && entries.some((e) => e.id === currentId)
-          ? currentId
-          : entries[0].id;
-        currentId = id;
-        // Clear ?d= when retrying lands on the latest brief and the
-        // user was not deep-linked; otherwise preserve the deep link.
-        setUrlId(id === entries[0].id && !getIdFromUrl() ? null : id);
-        setListHtml(renderList(entries, currentId));
-        const brief = await loadBrief(currentId);
-        if (seq !== requestSeq) return;
-        showSuccess(brief);
-      } catch {
-        if (seq !== requestSeq) return;
-        showError('dataset unreachable', true, true);
-      }
-      return;
-    }
-    const back = target.closest('button[data-back]') as HTMLElement | null;
-    if (back) {
-      setUrlId(null);
-      currentId = null;
-      void init();
-    }
-  });
-
-  // Keyboard: arrows + j/k move selection, Enter opens, Escape clears ?d=.
-  // Roving focus: the active button is focused so screen readers
-  // announce the selection. Modifier keys and editable targets are
-  // ignored so the handler does not hijack browser/OS shortcuts.
-  document.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const t = e.target;
-    if (
-      t instanceof HTMLInputElement ||
-      t instanceof HTMLTextAreaElement ||
-      t instanceof HTMLSelectElement
-    ) {
-      return;
-    }
-    if (t instanceof HTMLElement && t.isContentEditable) return;
-
-    if (entries.length === 0) return;
-    const currentIndex = entries.findIndex((entry) => entry.id === currentId);
-    let nextIndex = currentIndex;
-
-    switch (e.key) {
-      case 'ArrowDown':
-      case 'j':
-        e.preventDefault();
-        nextIndex = currentIndex < 0 ? 0 : Math.min(entries.length - 1, currentIndex + 1);
-        break;
-      case 'ArrowUp':
-      case 'k':
-        e.preventDefault();
-        nextIndex = currentIndex < 0 ? 0 : Math.max(0, currentIndex - 1);
-        break;
-      case 'Enter':
-        // No-op: the active button already opens on click; Enter is
-        // a no-op for buttons inside the list because they handle
-        // their own activation.
-        return;
-      case 'Escape':
-        e.preventDefault();
-        setUrlId(null);
-        currentId = null;
-        void init();
-        return;
-      default:
-        return;
-    }
-
-    const next = entries[nextIndex];
-    if (!next) return;
-    setUrlId(next.id);
-    currentId = next.id;
-    listEl
-      .querySelectorAll('button[aria-current="true"]')
-      .forEach((el) => el.removeAttribute('aria-current'));
-    const selectorId = (window.CSS && CSS.escape) ? CSS.escape(next.id) : next.id.replace(/"/g, '\\"');
-    const btn = listEl.querySelector(
-      'button[data-id="' + selectorId + '"]'
-    ) as HTMLElement | null;
-    if (btn) {
-      btn.setAttribute('aria-current', 'true');
-      // Roving focus: scroll the active button into view and focus it.
-      btn.scrollIntoView({ block: 'nearest' });
-      btn.focus();
-    }
-    const seq = nextSeq();
-    (async () => {
-      try {
-        showLoading();
-        const brief = await loadBrief(next.id);
-        if (seq !== requestSeq) return;
-        showSuccess(brief);
-      } catch (err) {
-        if (seq !== requestSeq) return;
-        const msg = err instanceof Error ? err.message : 'dataset unreachable';
-        if (msg.startsWith('HTTP 404')) {
-          showError('brief ' + next.id + ' not in dataset', false, false);
-        } else {
-          showError('dataset unreachable', true, true);
-        }
-      }
-    })();
-  });
-
-  void init();
+	import { createReedApi, esc, type ReedDigest, type ReedDigestItem } from '../lib/reed';
+
+	const listElement = document.getElementById('reed-list') as HTMLElement;
+	const readerElement = document.getElementById('reed-reader') as HTMLElement;
+	const countElement = document.getElementById('sb-count');
+	const stateElement = document.getElementById('sb-state');
+	const api = createReedApi();
+
+	let digests: ReedDigest[] = [];
+	let currentId: string | null = null;
+	let requestSequence = 0;
+
+	const safeProtocols = new Set(['http:', 'https:']);
+
+	function isSafeSourceUrl(raw: string): boolean {
+		try {
+			return safeProtocols.has(new URL(raw).protocol);
+		} catch {
+			return false;
+		}
+	}
+
+	function formatPublishedAt(iso: string): string {
+		const value = new Date(iso);
+		if (Number.isNaN(value.getTime())) return iso;
+		return new Intl.DateTimeFormat('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour: 'numeric',
+			minute: '2-digit',
+			timeZone: 'UTC',
+			timeZoneName: 'short',
+		}).format(value);
+	}
+
+	function getRequestedId(): string | null {
+		return new URLSearchParams(window.location.search).get('d');
+	}
+
+	function setRequestedId(id: string | null): void {
+		const url = new URL(window.location.href);
+		if (id) url.searchParams.set('d', id);
+		else url.searchParams.delete('d');
+		history.replaceState(null, '', url);
+	}
+
+	function setConnectionState(text: string, className: 'sb-ok' | 'sb-error' | ''): void {
+		if (!stateElement) return;
+		stateElement.textContent = text;
+		stateElement.classList.remove('sb-ok', 'sb-error');
+		if (className) stateElement.classList.add(className);
+	}
+
+	function sortDigests(values: ReedDigest[]): ReedDigest[] {
+		return [...values].sort((left, right) => {
+			const leftTime = new Date(left.published_at).getTime();
+			const rightTime = new Date(right.published_at).getTime();
+			const safeLeft = Number.isNaN(leftTime) ? 0 : leftTime;
+			const safeRight = Number.isNaN(rightTime) ? 0 : rightTime;
+			return safeRight - safeLeft;
+		});
+	}
+
+	function renderList(selectedId: string | null): string {
+		if (digests.length === 0) return '';
+
+		return (
+			'<div role="list">' +
+			'<p class="list-section-label">Published briefs</p>' +
+			digests
+				.map((digest) => {
+					const current = digest.id === selectedId ? ' aria-current="true"' : '';
+					const label =
+						digest.title +
+						', ' +
+						digest.market_window +
+						', published ' +
+						formatPublishedAt(digest.published_at);
+					return (
+						'<div role="listitem"><button type="button" data-id="' +
+						esc(digest.id) +
+						'" aria-label="' +
+						esc(label) +
+						'"' +
+						current +
+						'>' +
+						'<span class="item-copy">' +
+						'<span class="item-window">' +
+						esc(digest.market_window) +
+						'</span>' +
+						'<span class="item-title">' +
+						esc(digest.title) +
+						'</span>' +
+						'</span>' +
+						'<time class="item-time" datetime="' +
+						esc(digest.published_at) +
+						'">' +
+						esc(formatPublishedAt(digest.published_at)) +
+						'</time>' +
+						'</button></div>'
+					);
+				})
+				.join('') +
+			'</div>'
+		);
+	}
+
+	function renderSource(item: ReedDigestItem): string {
+		if (!isSafeSourceUrl(item.source_url)) {
+			return '<span>' + esc(item.source_name) + '</span>';
+		}
+		return (
+			'<a href="' +
+			esc(item.source_url) +
+			'" target="_blank" rel="noreferrer noopener">' +
+			esc(item.source_name) +
+			'</a>'
+		);
+	}
+
+	function renderSignals(item: ReedDigestItem): string {
+		const tickers = item.tickers
+			.map((ticker) => '<span class="ticker-chip">' + esc(ticker) + '</span>')
+			.join('');
+		return (
+			'<div class="market-signals" aria-label="Market analysis">' +
+			'<span class="sentiment sentiment-' + esc(item.market_sentiment) + '">' +
+			esc(item.market_sentiment) +
+			' implication</span>' +
+			tickers +
+			'</div>'
+		);
+	}
+
+	function renderDigest(digest: ReedDigest, isLatest: boolean): string {
+		const items = digest.items
+			.map(
+				(item) =>
+					'<article class="news-item">' +
+					'<h3>' +
+					esc(item.headline) +
+					'</h3>' +
+					renderSignals(item) +
+					'<p class="news-item-summary">' +
+					esc(item.summary) +
+					'</p>' +
+					'<p class="market-relevance"><strong>Why it matters:</strong> ' +
+					esc(item.market_relevance) +
+					'</p>' +
+					'<p class="news-source">' +
+					renderSource(item) +
+					'<time datetime="' +
+					esc(item.published_at) +
+					'">' +
+					esc(formatPublishedAt(item.published_at)) +
+					'</time>' +
+					'</p>' +
+					'</article>'
+			)
+			.join('');
+
+		return (
+			'<div class="reader-titlebar">' +
+			'<strong>' +
+			esc(digest.market_window) +
+			'</strong>' +
+			'<span class="reader-code">' +
+			esc(digest.id) +
+			'</span>' +
+			'</div>' +
+			'<header class="reader-header">' +
+			'<p class="digest-label">' +
+			(isLatest ? 'Latest successful published digest' : 'Historic digest') +
+			'</p>' +
+			'<h2>' +
+			esc(digest.title) +
+			'</h2>' +
+			'<p class="published-line">Published <time datetime="' +
+			esc(digest.published_at) +
+			'">' +
+			esc(formatPublishedAt(digest.published_at)) +
+			'</time></p>' +
+			'</header>' +
+			'<p class="digest-summary">' +
+			esc(digest.summary) +
+			'</p>' +
+			'<div class="news-list">' +
+			items +
+			'</div>'
+		);
+	}
+
+	function showLoading(): void {
+		readerElement.setAttribute('aria-busy', 'true');
+		readerElement.innerHTML =
+			'<div class="loading" role="status">Loading published briefs...</div>';
+		setConnectionState('Loading', '');
+	}
+
+	function showEmpty(): void {
+		currentId = null;
+		listElement.innerHTML = '';
+		readerElement.setAttribute('aria-busy', 'false');
+		readerElement.innerHTML = '<div class="empty" role="status">No published brief yet.</div>';
+		if (countElement) countElement.textContent = '0 briefs';
+		setConnectionState('Available, no published brief', 'sb-ok');
+	}
+
+	function showUnavailable(): void {
+		listElement.innerHTML = '';
+		readerElement.setAttribute('aria-busy', 'false');
+		readerElement.innerHTML =
+			'<div class="error" role="alert">' +
+			'<p>REED is unavailable. The published briefs could not be loaded.</p>' +
+			'<button type="button" data-retry>Retry</button>' +
+			'</div>';
+		setConnectionState('Unavailable', 'sb-error');
+	}
+
+	function showDigest(digest: ReedDigest): void {
+		currentId = digest.id;
+		listElement.innerHTML = renderList(currentId);
+		readerElement.setAttribute('aria-busy', 'false');
+		readerElement.innerHTML = renderDigest(digest, digests[0]?.id === digest.id);
+		if (countElement) {
+			countElement.textContent = digests.length + (digests.length === 1 ? ' brief' : ' briefs');
+		}
+		setConnectionState('Public read available', 'sb-ok');
+	}
+
+	async function loadDigests(): Promise<void> {
+		const sequence = ++requestSequence;
+		showLoading();
+		try {
+			const loaded = sortDigests(await api.listDigests());
+			if (sequence !== requestSequence) return;
+			digests = loaded;
+			if (digests.length === 0) {
+				showEmpty();
+				return;
+			}
+			const requestedId = getRequestedId();
+			const selected = digests.find((digest) => digest.id === requestedId) ?? digests[0];
+			if (requestedId && selected.id !== requestedId) setRequestedId(null);
+			showDigest(selected);
+		} catch {
+			if (sequence !== requestSequence) return;
+			showUnavailable();
+		}
+	}
+
+	listElement.addEventListener('click', (event) => {
+		const target = event.target as HTMLElement | null;
+		const button = target?.closest('button[data-id]') as HTMLButtonElement | null;
+		const id = button?.dataset.id;
+		const digest = digests.find((candidate) => candidate.id === id);
+		if (!digest) return;
+		setRequestedId(digest.id);
+		showDigest(digest);
+	});
+
+	readerElement.addEventListener('click', (event) => {
+		const target = event.target as HTMLElement | null;
+		if (target?.closest('button[data-retry]')) void loadDigests();
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.metaKey || event.ctrlKey || event.altKey) return;
+		if (event.target instanceof HTMLInputElement) return;
+		const currentIndex = digests.findIndex((digest) => digest.id === currentId);
+		const direction =
+			event.key === 'ArrowDown' || event.key === 'j'
+				? 1
+				: event.key === 'ArrowUp' || event.key === 'k'
+					? -1
+					: 0;
+		if (!direction || currentIndex < 0) return;
+		const nextIndex = Math.max(0, Math.min(digests.length - 1, currentIndex + direction));
+		if (nextIndex === currentIndex) return;
+		event.preventDefault();
+		const digest = digests[nextIndex];
+		setRequestedId(digest.id);
+		showDigest(digest);
+		const button = listElement.querySelector(
+			'button[data-id="' + CSS.escape(digest.id) + '"]'
+		) as HTMLButtonElement | null;
+		button?.focus();
+		button?.scrollIntoView({ block: 'nearest' });
+	});
+
+	void loadDigests();
 </script>

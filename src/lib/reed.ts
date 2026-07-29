@@ -1,196 +1,134 @@
-/**
- * REED reader support module for the static Astro page.
- *
- * The JSON contract is defined in two canonical sources, kept in lockstep:
- *   - backend/app/digests/models.py (Pydantic Digest)
- *   - dashboard/src/lib/types.ts (TypeScript mirror of the same shape)
- *
- * The types below are a third copy. validateDigestShape() enforces the
- * shape at runtime so a contract break fails into the error state
- * instead of rendering garbage.
- *
- * The dataset base URL is the single build-time seam between this page
- * and the dataset. See the constant below.
- */
+export const REED_API_ORIGIN = 'https://reed-portfolio-backend.onrender.com';
 
-// Dataset base URL. Change this constant and redeploy to point at a different source.
-export const DATASET_BASE: string =
-  "https://huggingface.co/datasets/ColdAshSage/reed-digests/resolve/main";
-
-/** Regex guard for the ?d=<id> query parameter. The store's _make_id
- *  produces YYYY-MM-DD-<session> where session is the normalized
- *  SessionName. */
-export const ID_REGEX: RegExp =
-  /^\d{4}-\d{2}-\d{2}-(pre_market|early_market|midday|close|weekend_recap)$/;
-
-export type Sentiment = "bullish" | "bearish" | "neutral";
-
-export type SessionName =
-  | "pre_market"
-  | "early_market"
-  | "midday"
-  | "close"
-  | "weekend_recap";
-
-export interface Source {
-  id: number;
-  name: string;
-  url: string;
+export interface ReedDigestItem {
+	headline: string;
+	summary: string;
+	source_name: string;
+	source_url: string;
+	published_at: string;
+	market_sentiment: 'bullish' | 'bearish' | 'mixed' | 'neutral';
+	market_relevance: string;
+	tickers: string[];
 }
 
-export interface Story {
-  tickers: string[];
-  headline: string;
-  summary: string;
-  sentiment: Sentiment;
-  source_name: string;
-  source_url: string;
+export interface ReedDigest {
+	id: string;
+	source_run_id: string;
+	market_window: string;
+	title: string;
+	summary: string;
+	published_at: string;
+	items: ReedDigestItem[];
 }
 
-export interface MarketSnapshotValue {
-  value: string;
-  change_pct?: string | null;
-  as_of?: string | null;
-  delayed: boolean;
+export interface ReedApi {
+	listDigests(): Promise<ReedDigest[]>;
+	getDigest(id: string): Promise<ReedDigest>;
 }
 
-export interface MarketSnapshotMeta {
-  source: string;
-  fetched_at: string;
-  values_raw: Record<string, MarketSnapshotValue>;
-  delayed: boolean;
+export function esc(value: unknown): string {
+	return String(value ?? '').replace(/[&<>"']/g, (character) => `&#${character.charCodeAt(0)};`);
 }
 
-export interface Generation {
-  provider: string;
-  model: string;
-  agent_turns: number;
-  tool_calls: number;
-  scraped_urls: number;
-  fallback_used: boolean;
-  duration_ms: number;
+function isObject(value: unknown): value is Record<string, unknown> {
+	return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-export interface Digest {
-  id?: string | null;
-  session: SessionName;
-  as_of: string;
-  headline: string;
-  executive_summary: string;
-  market_snapshot: Record<string, string>;
-  market_snapshot_meta: MarketSnapshotMeta;
-  stories: Story[];
-  themes: string[];
-  watch_next_session: string[];
-  sources: Source[];
-  generation: Generation;
+function requiredString(object: Record<string, unknown>, field: string, context: string): string {
+	const value = object[field];
+	if (typeof value !== 'string') {
+		throw new Error(`${context}.${field} missing or not a string`);
+	}
+	return value;
 }
 
-export interface IndexEntry {
-  id: string;
-  as_of: string;
+function optionalString(object: Record<string, unknown>, field: string, context: string): string {
+	if (object[field] === undefined) return '';
+	return requiredString(object, field, context);
 }
 
-/** HTML-escape helper. Copied from the structural reference page
- *  (machineread.astro). Same behavior. Accepts unknown to keep the
- *  call sites honest about nullish inputs. */
-export function esc(s: unknown): string {
-  return String(s ?? "").replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+function marketSentiment(object: Record<string, unknown>, context: string): ReedDigestItem['market_sentiment'] {
+	if (object.market_sentiment === undefined) return 'neutral';
+	const value = requiredString(object, 'market_sentiment', context);
+	if (value === 'bullish' || value === 'bearish' || value === 'mixed' || value === 'neutral') return value;
+	throw new Error(`${context}.market_sentiment is invalid`);
 }
 
-function isString(v: unknown): v is string {
-  return typeof v === "string";
+function tickerList(object: Record<string, unknown>, context: string): string[] {
+	const value = object.tickers;
+	if (value === undefined) return [];
+	if (!Array.isArray(value) || value.some((ticker) => typeof ticker !== 'string')) {
+		throw new Error(`${context}.tickers missing or not a string array`);
+	}
+	return value;
 }
 
-function isObject(v: unknown): v is Record<string, unknown> {
-  return v !== null && typeof v === "object" && !Array.isArray(v);
+function parseDigestItem(raw: unknown, index: number): ReedDigestItem {
+	if (!isObject(raw)) {
+		throw new Error(`digest.items[${index}] is not an object`);
+	}
+
+	const context = `digest.items[${index}]`;
+	return {
+		headline: requiredString(raw, 'headline', context),
+		summary: requiredString(raw, 'summary', context),
+		source_name: requiredString(raw, 'source_name', context),
+		source_url: requiredString(raw, 'source_url', context),
+		published_at: requiredString(raw, 'published_at', context),
+		market_sentiment: marketSentiment(raw, context),
+		market_relevance: optionalString(raw, 'market_relevance', context),
+		tickers: tickerList(raw, context),
+	};
 }
 
-/** Parses the defensive shape of _index.json. Accepts an array of
- *  {id, as_of} objects (current store shape) or an array of strings
- *  (the dashboard's mistaken cast). Objects are preferred. Entries
- *  whose id fails ID_REGEX are dropped, so downstream code can trust
- *  the id is safe to interpolate into fetch URLs and selectors. */
-export function parseIndexEntries(raw: unknown): IndexEntry[] {
-  if (!Array.isArray(raw)) return [];
-  const out: IndexEntry[] = [];
-  for (const entry of raw) {
-    if (isString(entry)) {
-      if (ID_REGEX.test(entry)) out.push({ id: entry, as_of: "" });
-      continue;
-    }
-    if (isObject(entry) && isString(entry.id)) {
-      if (!ID_REGEX.test(entry.id)) continue;
-      out.push({
-        id: entry.id,
-        as_of: isString(entry.as_of) ? entry.as_of : "",
-      });
-    }
-  }
-  return out;
+export function parseDigest(raw: unknown): ReedDigest {
+	if (!isObject(raw)) {
+		throw new Error('digest is not an object');
+	}
+	if (!Array.isArray(raw.items)) {
+		throw new Error('digest.items is not an array');
+	}
+
+	return {
+		id: requiredString(raw, 'id', 'digest'),
+		source_run_id: requiredString(raw, 'source_run_id', 'digest'),
+		market_window: requiredString(raw, 'market_window', 'digest'),
+		title: requiredString(raw, 'title', 'digest'),
+		summary: requiredString(raw, 'summary', 'digest'),
+		published_at: requiredString(raw, 'published_at', 'digest'),
+		items: raw.items.map(parseDigestItem),
+	};
 }
 
-/** Throws on hard mismatch with the Digest shape. The reader catches
- *  and transitions to the error state. */
-export function validateDigestShape(raw: unknown): Digest {
-  if (!isObject(raw)) {
-    throw new Error("digest is not an object");
-  }
+export function parseDigestList(raw: unknown): ReedDigest[] {
+	if (!Array.isArray(raw)) {
+		throw new Error('digest list is not an array');
+	}
+	return raw.map(parseDigest);
+}
 
-  if (!isString(raw.session)) {
-    throw new Error("digest.session missing or not a string");
-  }
-  if (!isString(raw.as_of)) {
-    throw new Error("digest.as_of missing or not a string");
-  }
-  if (!isString(raw.headline)) {
-    throw new Error("digest.headline missing or not a string");
-  }
-  if (!isString(raw.executive_summary)) {
-    throw new Error("digest.executive_summary missing or not a string");
-  }
+export function createReedApi(fetcher: typeof fetch = fetch): ReedApi {
+	async function getJson(path: string): Promise<unknown> {
+		const response = await fetcher(`${REED_API_ORIGIN}${path}`, {
+			method: 'GET',
+			headers: { Accept: 'application/json' },
+			credentials: 'omit',
+			mode: 'cors',
+			cache: 'no-store',
+		});
+		if (!response.ok) {
+			throw new Error(`REED request failed with status ${response.status}`);
+		}
+		return response.json();
+	}
 
-  if (!isObject(raw.market_snapshot_meta)) {
-    throw new Error("digest.market_snapshot_meta missing");
-  }
-  const meta = raw.market_snapshot_meta;
-  if (!isString(meta.source) || !isString(meta.fetched_at)) {
-    throw new Error("market_snapshot_meta.source/fetched_at missing");
-  }
-  if (!isObject(meta.values_raw)) {
-    throw new Error("market_snapshot_meta.values_raw missing");
-  }
+	return {
+		async listDigests(): Promise<ReedDigest[]> {
+			return parseDigestList(await getJson('/api/digests'));
+		},
 
-  if (!Array.isArray(raw.stories)) {
-    throw new Error("digest.stories is not an array");
-  }
-  for (let i = 0; i < raw.stories.length; i += 1) {
-    const s = raw.stories[i];
-    if (!isObject(s)) {
-      throw new Error(`stories[${i}] is not an object`);
-    }
-    if (!isString(s.headline) || !isString(s.summary) || !isString(s.sentiment)) {
-      throw new Error(`stories[${i}] missing headline/summary/sentiment`);
-    }
-    if (!Array.isArray(s.tickers)) {
-      throw new Error(`stories[${i}].tickers is not an array`);
-    }
-    if (!isString(s.source_name) || !isString(s.source_url)) {
-      throw new Error(`stories[${i}] missing source_name/source_url`);
-    }
-  }
-
-  if (!Array.isArray(raw.watch_next_session)) {
-    throw new Error("digest.watch_next_session is not an array");
-  }
-  if (!Array.isArray(raw.sources)) {
-    throw new Error("digest.sources is not an array");
-  }
-  if (!isObject(raw.generation)) {
-    throw new Error("digest.generation is not an object");
-  }
-
-  // At this point the shape is structurally valid. Cast through unknown
-  // so downstream consumers can rely on it.
-  return raw as unknown as Digest;
+		async getDigest(id: string): Promise<ReedDigest> {
+			return parseDigest(await getJson(`/api/digests/${encodeURIComponent(id)}`));
+		},
+	};
 }
