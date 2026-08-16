@@ -4,10 +4,27 @@ import Navbar from '@components/Navbar.astro';
 import { SEO } from 'astro-seo';
 
 export interface LayoutProps {
-  title: string;
+  title?: string;
+  home?: boolean;
+  demo?: boolean;
 }
 
-const { title = 'George Jieh | AI/ML Engineer & LLM Evaluation Specialist' } = Astro.props as LayoutProps;
+const {
+  title = 'George Jieh | AI/ML Engineer & LLM Evaluation Specialist',
+  home = false,
+  demo = false,
+} = Astro.props as LayoutProps;
+
+const broadcast = home || demo;
+
+const directionContract = `<!--
+THESIS: George's portfolio behaves like a live public-broadcast identity, refusing terminal cosplay and card stacks.
+OWN-WORLD: Electric cobalt, signal coral, acid yellow, warm white, and near-black form hard-edged fields with bold grotesk type and exact editorial rules.
+STORY: A visitor meets George, understands the judgment behind his AI work, inspects selected systems, and makes contact.
+FIRST VIEWPORT: A cobalt field owns the left side, the oversized name crosses its seam, the role and proof sit to the right, and Explore selected work is the primary action.
+FORM: Public-broadcast identity manual, grounded direction 6, seed f4e03120.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->`;
 ---
 
 <!DOCTYPE html>
@@ -25,7 +42,7 @@ const { title = 'George Jieh | AI/ML Engineer & LLM Evaluation Specialist' } = A
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap"
       rel="stylesheet"
     />
 
@@ -48,7 +65,7 @@ const { title = 'George Jieh | AI/ML Engineer & LLM Evaluation Specialist' } = A
       "name": "George Jieh",
       "url": "https://georgejieh.dev",
       "email": "contact@georgejieh.dev",
-      "jobTitle": "AI/ML Engineer & LLM Evaluation Specialist",
+      "jobTitle": "AI/ML Engineer and LLM Evaluation Specialist",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "San Francisco",
@@ -93,11 +110,16 @@ const { title = 'George Jieh | AI/ML Engineer & LLM Evaluation Specialist' } = A
     })} />
   </head>
   <body
-    class="mx-auto max-w-screen-xl bg-black px-5 font-sans text-white text-[16px] md:text-[18px]"
+    data-surface={home ? 'portfolio-home' : demo ? 'portfolio-demo' : undefined}
+    class:list={[
+      'site-body font-sans text-[16px] md:text-[18px]',
+      broadcast ? 'site-body--home' : 'mx-auto max-w-screen-xl bg-black px-5 text-white',
+    ]}
   >
-    <Navbar />
+    <Fragment set:html={home ? directionContract : ''} />
+    <Navbar home={broadcast} />
     <slot />
-    <Footer />
+    <Footer home={broadcast} />
     <style is:global>
       img {
         content-visibility: auto;
@@ -105,31 +127,23 @@ const { title = 'George Jieh | AI/ML Engineer & LLM Evaluation Specialist' } = A
         margin: 1.5rem 0;
       }
 
-      body {
+      .site-body:not(.site-body--home) {
         background-color: #0a0e14;
         color: #c9d1d9;
       }
 
-      a {
+      .site-body:not(.site-body--home) a {
         color: #00ff9c;
         transition: color 0.2s ease;
       }
 
-      a:hover {
+      .site-body:not(.site-body--home) a:hover {
         color: #00cc7d;
       }
 
       ::selection {
         background-color: rgba(0, 255, 156, 0.2);
         color: #00ff9c;
-      }
-
-      /* Subtle grid texture */
-      .grid-bg {
-        background-image:
-          linear-gradient(rgba(45, 51, 59, 0.15) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(45, 51, 59, 0.15) 1px, transparent 1px);
-        background-size: 40px 40px;
       }
 
       /* Scrollbar */

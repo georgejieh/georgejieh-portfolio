@@ -36,26 +36,25 @@ const areas = [
 <section
   data-testid="focus"
   id="focus"
-  class="flex flex-col items-start justify-center py-20 md:py-28"
+  class="home-focus"
 >
-  <div class="mb-10 flex w-full items-baseline gap-4">
-    <h2 class="font-mono text-sm tracking-widest text-accent uppercase">02 / Focus Areas</h2>
-    <div class="h-px flex-1 bg-border"></div>
-  </div>
+  <div class="home-focus__inner">
+    <div class="home-section__heading home-section__heading--inverse">
+      <p>02 / Focus</p>
+      <h2>Models, systems, and consequences.</h2>
+    </div>
 
-  <div class="grid w-full gap-px overflow-hidden border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
-    {areas.map((area) => (
-      <div class="group bg-black p-6 transition-colors hover:bg-surface lg:p-8">
-        <h3 class="mb-3 font-mono text-base text-white transition-colors group-hover:text-accent lg:text-lg">
-          {area.title}
-        </h3>
-        <p class="mb-4 text-sm leading-relaxed text-muted">{area.body}</p>
-        <div class="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-muted/70">
-          {area.tags.map((tag) => (
-            <span class="transition-colors group-hover:text-accent/70">{tag}</span>
-          ))}
-        </div>
-      </div>
-    ))}
+    <ol class="home-focus__list">
+      {areas.map((area, index) => (
+        <li class="home-focus__item">
+          <span class="home-focus__index">{String(index + 1).padStart(2, '0')}</span>
+          <div>
+            <h3>{area.title}</h3>
+            <p>{area.body}</p>
+            <p class="home-focus__tags">{area.tags.join(' / ')}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
   </div>
 </section>

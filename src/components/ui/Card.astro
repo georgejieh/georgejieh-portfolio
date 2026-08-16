@@ -14,7 +14,7 @@ interface Props {
 }
 
 const {
-  url = '#',
+  url,
   repo,
   title = 'Project title',
   description = 'Project Description',
@@ -25,64 +25,66 @@ const {
 } = Astro.props;
 
 const statusConfig = {
-  'shipped': { label: 'Shipped', color: 'text-accent', dot: 'bg-accent' },
-  'in-progress': { label: 'In Progress', color: 'text-warn', dot: 'bg-warn' },
-  'research': { label: 'Research', color: 'text-info', dot: 'bg-info' },
-  'planned': { label: 'Planned', color: 'text-muted', dot: 'bg-muted' },
+  'shipped': { label: 'Shipped', className: 'is-shipped' },
+  'in-progress': { label: 'In progress', className: 'is-progress' },
+  'research': { label: 'Research', className: 'is-research' },
+  'planned': { label: 'Planned', className: 'is-planned' },
 };
 
 const sc = statusConfig[status];
-const num = String(index + 1).padStart(3, '0');
+const num = String(index + 1).padStart(2, '0');
 const internalUrl = url && url.startsWith('/');
 ---
 
 <article
+  id={`project-${index + 1}`}
   data-testid="card"
-  class="group relative w-full border border-border bg-surface p-6 transition-all duration-300 hover:border-accent/40 hover:bg-surfaceLight lg:p-8"
+  class={`home-project ${sc.className}`}
 >
-  <div class="mb-4 flex items-center justify-between font-mono text-xs tracking-widest uppercase">
-    <div class="flex items-center gap-4">
-      <span class="text-muted/60">{num}</span>
-      <div class="flex items-center gap-2">
-        <span class={`inline-block h-2 w-2 rounded-full ${sc.dot}`}></span>
-        <span class={sc.color}>{sc.label}</span>
+  <details data-testid="project-disclosure" open={index === 0}>
+    <summary>
+      <span class="home-project__number">{num}</span>
+      <span class="home-project__status">{sc.label}</span>
+      <span class="home-project__heading">
+        <span class="home-project__title">{title}</span>
+        <span class="home-project__description">{description}</span>
+      </span>
+      <span class="home-project__toggle" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+      </span>
+    </summary>
+
+    <div class="home-project__body">
+      <div class="home-project__meta">
+        <Tags tags={tags} />
+      </div>
+      <div class="home-project__detail">
+        {longDescription && <p>{longDescription}</p>}
+        <div class="home-project__links">
+          {url && url !== repo && (
+            <a
+              href={url}
+              aria-label={`${title} link`}
+              target={internalUrl ? undefined : '_blank'}
+              rel={internalUrl ? undefined : 'noopener'}
+            >
+              {internalUrl ? 'Open live demo' : 'Visit project'}
+              <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M4 12 12 4M6 4h6v6" /></svg>
+            </a>
+          )}
+          {repo && (
+            <a
+              href={repo}
+              aria-label={`${title} repository`}
+              target="_blank"
+              rel="noopener"
+            >
+              View repository
+              <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M4 12 12 4M6 4h6v6" /></svg>
+            </a>
+          )}
+        </div>
       </div>
     </div>
-    <div class="flex items-center gap-5 normal-case">
-      {repo && (
-        <a
-          href={repo}
-          aria-label={`${title} repository`}
-          target="_blank"
-          rel="noopener"
-          class="text-muted transition-colors hover:text-accent"
-        >
-          &rarr; Repo
-        </a>
-      )}
-      {url && url !== repo && (
-        <a
-          href={url}
-          aria-label={`${title} link`}
-          target={internalUrl ? undefined : '_blank'}
-          rel={internalUrl ? undefined : 'noopener'}
-          class="text-accent transition-colors hover:text-accentDim"
-        >
-          &rarr; {internalUrl ? 'Try It Live' : 'Visit'}
-        </a>
-      )}
-    </div>
-  </div>
-
-  <h3 class="mb-3 font-mono text-xl text-white transition-colors group-hover:text-accent lg:text-2xl">
-    {title}
-  </h3>
-
-  <p class="mb-2 text-sm leading-relaxed text-white/80 lg:text-base">{description}</p>
-
-  {longDescription && (
-    <p class="mb-4 text-sm leading-relaxed text-muted lg:text-base">{longDescription}</p>
-  )}
-
-  <Tags tags={tags} />
+  </details>
 </article>
