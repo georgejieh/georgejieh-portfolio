@@ -1,54 +1,62 @@
----
----
-
 <section
   data-testid="about"
   id="about"
-  class="flex flex-col items-start justify-center py-20 md:py-28"
+  class="home-section home-about"
 >
-  <div class="mb-10 flex w-full items-baseline gap-4">
-    <h2 class="font-mono text-sm tracking-widest text-accent uppercase">01 / About</h2>
-    <div class="h-px flex-1 bg-border"></div>
+  <div class="home-section__heading">
+    <p>01 / Story</p>
+    <h2>Judgment built under pressure.</h2>
   </div>
 
-  <div class="w-full max-w-3xl space-y-5 text-left leading-relaxed text-white/90">
-    <p>
+  <div class="home-about__layout">
+    <div class="home-about__lead">
+      <p>
       AI/ML engineer and LLM evaluation specialist in the Bay Area. Nine years
       in financial services under FINRA and SEC regulatory oversight before
       pivoting to machine learning. The finance career taught systems thinking
       under regulatory pressure. The AI work is where that thinking goes when
       the constraints are open-ended.
-    </p>
-    <p>
-      At Scale AI / Outlier (August 2024 &ndash; April 2025), earned Oracle Tier and
-      a Quality Analyst promotion across twelve RLHF training projects:
-      process-supervised code reasoning, multi-turn instruction following,
-      multimodal visual grounding, tool-use accuracy, and adversarial prompt
-      design. Worked the data science, Python engineering, generalist reasoning,
-      and finance domain tracks. Reviewed and corrected peer annotations, built
-      evaluation rubrics from scratch, and caught reward hacking in quality
-      review. Based on what each project trained for and the public improvements
-      labs reported in the following months, this work plausibly fed into
-      frontier models from OpenAI, Anthropic, Google DeepMind, Meta, and
-      Microsoft.
-    </p>
-    <p>
-      Data science foundation from BrainStation (2023&ndash;2024) and the Google Data
-      Analytics Professional Certificate. First place in the Google-sponsored
-      capstone hackathon (Google Companion, April 2024): a geospatial pedestrian
-      safety scoring model built from 1.9M+ Chicago crime records. Microsoft
-      Certified Azure AI Engineer Associate and Azure Data Scientist Associate.
-      PCEP certified in Python.
-    </p>
-    <p>
-      Currently rebuilding past projects to production quality while shipping
-      new AI systems. Runs multi-agent orchestration across OpenAI Codex and
-      Hermes Agent for coding workflows, knowledge management, and automated
-      operations.
-    </p>
-    <p class="text-muted">
-      FINRA licensed (Series 7, 66, SIE). WSET Level 2 wine certified. Bilingual
-      English and Mandarin. UC Berkeley BA in American Studies.
-    </p>
+      </p>
+
+      <ul class="home-about__facts" aria-label="Professional facts">
+        <li><strong>12</strong><span>RLHF training projects</span></li>
+        <li><strong>9 yrs</strong><span>FINRA-regulated finance</span></li>
+        <li><strong>1st</strong><span>Google-sponsored capstone hackathon</span></li>
+      </ul>
+    </div>
+
+    <div class="home-about__essay">
+      <p>
+        At Scale AI / Outlier (August 2024 - April 2025), earned Oracle Tier and
+        a Quality Analyst promotion across twelve RLHF training projects:
+        process-supervised code reasoning, multi-turn instruction following,
+        multimodal visual grounding, tool-use accuracy, and adversarial prompt
+        design. Worked the data science, Python engineering, generalist reasoning,
+        and finance domain tracks. Reviewed and corrected peer annotations, built
+        evaluation rubrics from scratch, and caught reward hacking in quality
+        review. Based on what each project trained for and the public improvements
+        labs reported in the following months, this work plausibly fed into
+        frontier models from OpenAI, Anthropic, Google DeepMind, Meta, and
+        Microsoft.
+      </p>
+      <p>
+        Data science foundation from BrainStation (2023-2024) and the Google Data
+        Analytics Professional Certificate. First place in the Google-sponsored
+        capstone hackathon (Google Companion, April 2024): a geospatial pedestrian
+        safety scoring model built from 1.9M+ Chicago crime records. Microsoft
+        Certified Azure AI Engineer Associate and Azure Data Scientist Associate.
+        PCEP certified in Python.
+      </p>
+      <p>
+        Currently rebuilding past projects to production quality while shipping
+        new AI systems. Runs multi-agent orchestration across OpenAI Codex and
+        Hermes Agent for coding workflows, knowledge management, and automated
+        operations.
+      </p>
+      <p class="home-about__footnote">
+        FINRA licensed (Series 7, 66, SIE). WSET Level 2 wine certified. Bilingual
+        English and Mandarin. UC Berkeley BA in American Studies.
+      </p>
+    </div>
   </div>
 </section>

@@ -1,35 +1,37 @@
 ---
 import Layout from '@layouts/Layout.astro';
+import '../styles/home.css';
+import '../styles/demo.css';
 
 const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
 ---
 
-<Layout title="MachineRead — Live Audit | George Jieh">
-  <main>
+<Layout title="MachineRead: Live Audit | George Jieh" demo>
+  <main class="demo-page demo-page--machineread" data-program="machineread">
+    <header class="demo-masthead" aria-label="MachineRead program header">
+      <a class="demo-masthead__back" href="/#projects">Portfolio / Selected work</a>
+      <p class="demo-masthead__program">Program 01 / Live public audit</p>
+      <a class="demo-masthead__live" href="https://machineread.ai" target="_blank" rel="noopener">
+        Production site <span aria-hidden="true">↗</span>
+      </a>
+    </header>
+
     <div class="mr-app">
-      <div class="mr-brandbar">
-        <div class="mr-brand">
-          <span class="mr-brand-mark">MR</span>
-          <span class="mr-brand-name">MachineRead</span>
-        </div>
-        <a class="mr-back" href="/#projects">&larr; Portfolio</a>
-      </div>
 
       <section class="command-panel">
         <div class="command-copy">
-          <p class="panel-kicker">Public Website Audit</p>
+          <p class="panel-kicker">MachineRead / Public website audit</p>
           <h1>Audit any public site the way <em>machines</em> read it</h1>
           <p>
             MachineRead scans a URL for AI crawler access, scrapability,
             <span class="mr-code">llms.txt</span>, structured data, agent-protocol
             surfaces, and the SEO signals AI retrieval still depends on. This is
-            the live free Essentials tier &mdash; 13 check groups, 56 checked
-            points &mdash; running through the same public API documented in the
-            repository.
+            the live free Essentials tier. It runs 13 check groups and 56 checked
+            points through the same public API documented in the repository.
           </p>
           <p class="mr-fineprint">
-            Anonymous &middot; rate-limited &middot; no data stored &middot;
-            free-tier host may take ~30s to wake
+            Anonymous / rate-limited / no data stored / free-tier host may take
+            about 30 seconds to wake
           </p>
           <p class="mr-live-note">
             <strong>MachineRead is live at
@@ -45,7 +47,11 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
           </p>
         </div>
 
-        <form class="audit-form" id="audit-form">
+        <form class="audit-form" id="audit-form" aria-labelledby="audit-form-title">
+          <div class="audit-form__heading">
+            <p class="panel-kicker">Run the portfolio demo</p>
+            <h2 id="audit-form-title">Enter one public URL</h2>
+          </div>
           <label for="audit-url">Target URL</label>
           <div class="input-row">
             <input
@@ -81,6 +87,12 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
               ))}
             </div>
           </div>
+
+          <dl class="audit-form__facts" aria-label="Portfolio demo limits">
+            <div><dt>Coverage</dt><dd>13 groups</dd></div>
+            <div><dt>Checked points</dt><dd>56</dd></div>
+            <div><dt>Storage</dt><dd>None</dd></div>
+          </dl>
         </form>
       </section>
 
@@ -98,17 +110,17 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
         <div class="summary-grid">
           <div class="summary-tile is-accent">
             <span>Overall</span>
-            <strong id="r-overall">&ndash;</strong>
+            <strong id="r-overall">--</strong>
             <p id="r-overall-sub">of 100 weighted points</p>
           </div>
           <div class="summary-tile">
             <span>Essentials</span>
-            <strong><span id="r-essentials">&ndash;</span>%</strong>
+            <strong><span id="r-essentials">--</span>%</strong>
             <p id="r-essentials-sub"></p>
           </div>
           <div class="summary-tile">
             <span>Agent Readiness</span>
-            <strong><span id="r-agent">&ndash;</span>%</strong>
+            <strong><span id="r-agent">--</span>%</strong>
             <p id="r-agent-sub"></p>
           </div>
         </div>
@@ -116,8 +128,8 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
         <div class="read-note">
           <b>How to read this</b>
           A low or partial score can mean the signal is genuinely missing,
-          present but implemented in a way machines can&rsquo;t parse cleanly,
-          or simply not exposed where the audit looks &mdash; a low score is a
+          present but implemented in a way machines can't parse cleanly,
+          or simply not exposed where the audit looks. A low score is a
           prompt to check, not a verdict. A pass is the reliable direction: if
           MachineRead found the signal, an agent almost certainly can too.
         </div>
@@ -167,684 +179,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
   </main>
 </Layout>
 
-<style is:global>
-  .mr-app {
-    --font-mono: "Cascadia Code", "JetBrains Mono", "IBM Plex Mono", ui-monospace,
-      SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    --bg: #05080a;
-    --bg-grid: rgba(45, 226, 152, 0.045);
-    --scanline: rgba(255, 255, 255, 0.022);
-    --surface: rgba(9, 16, 14, 0.88);
-    --surface-solid: #0a1210;
-    --surface-muted: rgba(45, 226, 152, 0.05);
-    --border: rgba(45, 226, 152, 0.16);
-    --border-strong: rgba(45, 226, 152, 0.34);
-    --text: #d9e6dd;
-    --muted: #74897c;
-    --muted-strong: #a9bcae;
-    --accent: #2de298;
-    --accent-strong: #7dffc8;
-    --accent-soft: rgba(45, 226, 152, 0.12);
-    --accent-ink: #04110a;
-    --green: #2de298;
-    --green-soft: rgba(45, 226, 152, 0.12);
-    --amber: #f5c542;
-    --amber-soft: rgba(245, 197, 66, 0.12);
-    --red: #ff6b6b;
-    --red-soft: rgba(255, 107, 107, 0.12);
-    --violet: #4cc9f0;
-    --violet-soft: rgba(76, 201, 240, 0.12);
-    --chart-track: rgba(151, 178, 161, 0.16);
-    --shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
-    --glow: 0 0 22px rgba(45, 226, 152, 0.16);
 
-    position: relative;
-    display: block;
-    margin: 0 auto;
-    padding: 8px 0 48px;
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 14px;
-  }
-
-  /* Grid texture layered behind the whole demo. */
-  .mr-app::before {
-    content: "";
-    position: absolute;
-    inset: -24px -40px;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      linear-gradient(var(--bg-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
-    background-size: 44px 44px;
-  }
-
-  .mr-app > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Local hide utility — do NOT depend on Tailwind's `.hidden` here.
-     .loading-inline / .error-banner / .report-stack each set an explicit
-     `display`, which has the same (0,1,0) specificity as Tailwind's
-     `.hidden` and wins on source order, so toggling `hidden` alone never
-     hides them. This scoped rule outranks those display rules and makes the
-     status/error/results toggle actually take effect. */
-  .mr-app .hidden {
-    display: none !important;
-  }
-
-  .mr-app a {
-    color: var(--accent);
-  }
-  .mr-app a:hover {
-    color: var(--accent-strong);
-  }
-
-  /* Brand bar */
-  .mr-brandbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 8px 0 20px;
-    margin-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-  }
-  .mr-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .mr-brand-mark {
-    display: grid;
-    width: 38px;
-    height: 38px;
-    place-items: center;
-    border: 1px solid var(--accent);
-    border-radius: 2px;
-    background: var(--accent);
-    color: var(--accent-ink);
-    font-weight: 800;
-    font-size: 14px;
-    letter-spacing: 0.04em;
-    box-shadow: var(--glow);
-  }
-  .mr-brand-name {
-    color: var(--text);
-    font-size: 16px;
-    font-weight: 750;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .mr-brand-name::after {
-    content: "_";
-    color: var(--accent);
-    animation: mrblink 1.1s steps(2, start) infinite;
-  }
-  .mr-back {
-    font-size: 12px;
-    font-weight: 650;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted) !important;
-  }
-  .mr-back:hover {
-    color: var(--accent) !important;
-  }
-
-  /* Shared panel chrome */
-  .command-panel,
-  .panel,
-  .findings-panel {
-    position: relative;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(14px);
-  }
-  .command-panel::before,
-  .panel::before,
-  .findings-panel::before {
-    content: "";
-    position: absolute;
-    top: -1px;
-    left: -1px;
-    width: 22px;
-    height: 2px;
-    background: var(--accent);
-  }
-
-  .panel-kicker {
-    margin: 0;
-    color: var(--accent);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-  .panel-kicker::before {
-    content: "// ";
-    color: var(--muted);
-  }
-
-  .mr-code {
-    color: var(--accent-strong);
-  }
-  .mr-fineprint {
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.6;
-  }
-
-  /* Live-product callout: the production site is the real destination,
-     so it outranks the surrounding fineprint visually. */
-  .mr-live-note {
-    margin: 0 0 12px;
-    border: 1px solid var(--border-strong);
-    border-left: 3px solid var(--accent);
-    border-radius: 2px;
-    background: var(--accent-soft);
-    padding: 12px 14px;
-    color: var(--muted-strong);
-    font-size: 13px;
-    line-height: 1.6;
-  }
-  .mr-live-note strong {
-    color: var(--text);
-    font-weight: 700;
-  }
-  .mr-live-note a {
-    color: var(--accent-strong) !important;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  /* Command panel */
-  .command-panel {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(340px, 520px);
-    gap: 28px;
-    align-items: start;
-    margin-bottom: 24px;
-    padding: clamp(22px, 4vw, 36px);
-  }
-  .command-copy h1 {
-    max-width: 780px;
-    margin: 10px 0 14px;
-    color: var(--text);
-    font-size: clamp(28px, 3.6vw, 48px);
-    font-weight: 780;
-    line-height: 1.05;
-    letter-spacing: -0.01em;
-  }
-  .command-copy h1 em {
-    font-style: normal;
-    color: var(--accent);
-  }
-  .command-copy p:not(.panel-kicker) {
-    max-width: 640px;
-    margin: 0 0 12px;
-    color: var(--muted-strong);
-    font-size: 14px;
-    line-height: 1.7;
-  }
-
-  .audit-form {
-    display: grid;
-    gap: 14px;
-  }
-  .audit-form label {
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-  .input-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 132px;
-    gap: 10px;
-  }
-  .input-row input {
-    width: 100%;
-    min-width: 0;
-    border: 1px solid var(--border-strong);
-    border-radius: 2px;
-    background: var(--surface-solid);
-    color: var(--text);
-    outline: none;
-    padding: 14px;
-    font-family: var(--font-mono);
-    font-size: 14px;
-  }
-  .input-row input::placeholder {
-    color: var(--muted);
-  }
-  .input-row input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft), var(--glow);
-  }
-  .input-row button {
-    border: 1px solid var(--accent);
-    border-radius: 2px;
-    background: var(--accent);
-    color: var(--accent-ink);
-    font-family: var(--font-mono);
-    font-weight: 780;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    min-height: 50px;
-    padding: 0 16px;
-    box-shadow: var(--glow);
-    cursor: pointer;
-    transition: background 150ms ease, box-shadow 150ms ease;
-  }
-  .input-row button:hover:not(:disabled) {
-    background: var(--accent-strong);
-    box-shadow: 0 0 30px rgba(45, 226, 152, 0.3);
-  }
-  .input-row button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .preset-picker {
-    display: grid;
-    gap: 12px;
-    border-top: 1px dashed var(--border);
-    padding-top: 14px;
-  }
-  .preset-picker-heading {
-    display: grid;
-    gap: 4px;
-  }
-  .preset-picker-subtitle {
-    margin: 0;
-    color: var(--muted);
-    font-size: 12.5px;
-    line-height: 1.5;
-  }
-  .preset-chip-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .preset-chip {
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: var(--surface-muted);
-    color: var(--muted-strong);
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    font-weight: 650;
-    padding: 9px 12px;
-    cursor: pointer;
-    transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
-  }
-  .preset-chip:hover {
-    border-color: var(--border-strong);
-    color: var(--text);
-  }
-  .preset-chip.active {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    color: var(--accent-strong);
-  }
-
-  /* Loading + error */
-  .loading-inline {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: var(--surface);
-    padding: 16px 18px;
-    color: var(--muted-strong);
-    font-size: 13.5px;
-  }
-  .spinner {
-    width: 26px;
-    height: 26px;
-    flex: 0 0 auto;
-    border: 3px solid var(--chart-track);
-    border-top-color: var(--accent);
-    border-radius: 999px;
-    animation: mrspin 850ms linear infinite;
-  }
-  .error-banner {
-    display: grid;
-    gap: 4px;
-    margin-bottom: 20px;
-    border: 1px solid var(--red);
-    border-left-width: 3px;
-    border-radius: 2px;
-    background: var(--red-soft);
-    padding: 14px 16px;
-  }
-  .error-banner strong {
-    color: var(--red);
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .error-banner span {
-    color: var(--muted-strong);
-  }
-
-  /* Report */
-  .report-stack {
-    display: grid;
-    gap: 24px;
-  }
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-  }
-  .summary-tile {
-    position: relative;
-    min-height: 168px;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: var(--surface);
-    padding: 18px;
-    box-shadow: var(--shadow);
-  }
-  .summary-tile.is-accent {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    box-shadow: var(--glow);
-  }
-  .summary-tile.is-accent::before {
-    content: "";
-    position: absolute;
-    top: -1px;
-    left: -1px;
-    width: 22px;
-    height: 2px;
-    background: var(--accent);
-  }
-  /* Direct-child label only — must not shrink the number <span> nested
-     inside the score <strong> (that span inherits the big strong size). */
-  .summary-tile > span {
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .summary-tile strong {
-    display: block;
-    margin-top: 18px;
-    color: var(--text);
-    font-size: clamp(40px, 5vw, 64px);
-    line-height: 0.9;
-    font-variant-numeric: tabular-nums;
-    font-weight: 780;
-  }
-  .summary-tile.is-accent strong {
-    color: var(--accent-strong);
-    text-shadow: var(--glow);
-  }
-  .summary-tile p {
-    margin: 12px 0 0;
-    color: var(--muted-strong);
-    font-size: 12.5px;
-    line-height: 1.5;
-  }
-
-  .read-note {
-    border: 1px dashed var(--border);
-    border-left: 3px solid var(--accent);
-    border-radius: 2px;
-    background: var(--surface-muted);
-    padding: 13px 16px;
-    color: var(--muted-strong);
-    font-size: 12.5px;
-    line-height: 1.65;
-  }
-  .read-note b {
-    display: block;
-    margin-bottom: 4px;
-    color: var(--accent);
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .panel {
-    padding: 20px;
-  }
-  .panel-heading {
-    margin-bottom: 16px;
-  }
-  .panel-heading h3,
-  .findings-header h2 {
-    margin: 4px 0 0;
-    color: var(--text);
-    font-size: 17px;
-    font-weight: 750;
-  }
-
-  .preview-bars {
-    display: grid;
-    gap: 16px;
-  }
-  .preview-bar-row {
-    display: grid;
-    grid-template-columns: minmax(150px, 0.5fr) minmax(0, 1fr) 64px;
-    gap: 14px;
-    align-items: center;
-  }
-  .preview-bar-row > span:first-child {
-    color: var(--muted-strong);
-    font-size: 13px;
-  }
-  .preview-bar {
-    height: 8px;
-    overflow: hidden;
-    border-radius: 1px;
-    background: var(--chart-track);
-  }
-  .preview-bar div {
-    height: 100%;
-    background: var(--accent);
-    box-shadow: var(--glow);
-  }
-  .preview-bar-row .bar-val {
-    color: var(--text);
-    font-size: 13px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .inventory-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .inv-chip {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: var(--surface-muted);
-    padding: 9px 12px;
-    font-size: 12.5px;
-    color: var(--muted-strong);
-  }
-  .inv-chip strong {
-    color: var(--text);
-    font-variant-numeric: tabular-nums;
-    font-weight: 750;
-  }
-  .inv-chip.pass strong {
-    color: var(--green);
-  }
-  .inv-chip.partial strong {
-    color: var(--amber);
-  }
-  .inv-chip.fail strong {
-    color: var(--red);
-  }
-
-  /* Findings / attention */
-  .findings-panel {
-    display: grid;
-    gap: 18px;
-    padding: 20px;
-  }
-  .findings-header p:not(.panel-kicker) {
-    margin: 4px 0 0;
-    color: var(--muted);
-    font-size: 13px;
-  }
-  .action-list {
-    display: grid;
-    gap: 10px;
-  }
-  .action-row {
-    display: grid;
-    grid-template-columns: 92px minmax(0, 1fr) 64px;
-    grid-template-areas:
-      "badge title points"
-      "badge detail detail";
-    gap: 8px 12px;
-    align-items: start;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: var(--surface-solid);
-    padding: 14px;
-  }
-  .action-row .state-badge {
-    grid-area: badge;
-    align-self: start;
-  }
-  .action-row .action-title {
-    grid-area: title;
-    align-self: center;
-  }
-  .action-row .action-title strong {
-    display: block;
-    color: var(--text);
-    font-size: 13.5px;
-  }
-  .action-row .action-title span {
-    display: block;
-    margin-top: 4px;
-    color: var(--muted);
-    font-size: 12px;
-  }
-  .action-points {
-    grid-area: points;
-    justify-self: end;
-    align-self: center;
-    color: var(--text);
-    font-size: 13px;
-    font-variant-numeric: tabular-nums;
-    font-weight: 700;
-  }
-  .action-detail {
-    grid-area: detail;
-    display: grid;
-    gap: 6px;
-    margin-top: 2px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--border);
-  }
-  .action-detail p {
-    margin: 0;
-    font-size: 12.5px;
-    line-height: 1.55;
-  }
-  .action-detail .finding {
-    color: var(--muted-strong);
-  }
-  .action-detail .fix {
-    color: var(--text);
-  }
-  .action-detail .fix b {
-    color: var(--accent);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-size: 10.5px;
-    margin-right: 6px;
-  }
-  .state-badge {
-    display: inline-flex;
-    min-width: 74px;
-    justify-content: center;
-    border: 1px solid currentColor;
-    border-radius: 2px;
-    font-size: 11px;
-    font-weight: 750;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 6px 8px;
-  }
-  .state-fail .state-badge {
-    border-color: var(--red);
-    background: var(--red-soft);
-    color: var(--red);
-  }
-  .state-partial .state-badge,
-  .state-warn .state-badge {
-    border-color: var(--amber);
-    background: var(--amber-soft);
-    color: var(--amber);
-  }
-
-  @keyframes mrspin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  @keyframes mrblink {
-    50% {
-      opacity: 0;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .command-panel {
-      grid-template-columns: 1fr;
-    }
-    .summary-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  @media (max-width: 640px) {
-    .command-copy h1 {
-      font-size: 28px;
-    }
-    .preview-bar-row {
-      grid-template-columns: minmax(0, 1fr) 56px;
-    }
-    .preview-bar {
-      grid-column: 1 / -1;
-      grid-row: 2;
-    }
-    .action-row {
-      grid-template-columns: 78px minmax(0, 1fr);
-      grid-template-areas:
-        "badge title"
-        "badge points"
-        "detail detail";
-    }
-    .action-points {
-      justify-self: start;
-    }
-  }
-</style>
 
 <script>
   const API_BASE =
@@ -878,9 +213,9 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     return /^https?:\/\//i.test(t) ? t : `https://${t}`;
   }
 
-  // ---- Single source of truth for what is on screen. Exactly one of
+  // State controller for what is on screen. Exactly one of
   // {idle, loading, error, results} is ever visible, so the spinner and the
-  // error banner can never linger next to a rendered report. ----
+  // error banner can never linger next to a rendered report.
   type Phase = 'idle' | 'loading' | 'error' | 'results';
   function setPhase(phase: Phase) {
     statusWrap.classList.toggle('hidden', phase !== 'loading');
@@ -898,7 +233,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
   }
 
   // Best-effort wake for the free-tier host. Returns true once /health is OK.
-  // A false result does NOT mean "give up" — the caller still attempts the
+  // A false result does NOT mean "give up," so the caller still attempts the
   // audit, because /health can be flaky while the audit route is already live.
   async function waitForBackend(): Promise<boolean> {
     const deadline = Date.now() + 120_000;
@@ -914,7 +249,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
         /* not up yet */
       }
       if (!announced) {
-        setStatus('Backend is waking from sleep (free-tier host) — up to a minute');
+        setStatus('Backend is waking from sleep (free-tier host). This can take up to a minute.');
         announced = true;
       }
       await new Promise((r) => setTimeout(r, 4_000));
@@ -946,16 +281,16 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     const essEarned = bench ? bench.checked_score : null;
     const essMax = bench ? bench.checked_max : null;
 
-    (document.getElementById('r-overall') as HTMLElement).textContent = String(data.overall_score ?? '–');
+    (document.getElementById('r-overall') as HTMLElement).textContent = String(data.overall_score ?? '--');
     (document.getElementById('r-overall-sub') as HTMLElement).textContent = 'of 100 weighted points';
-    (document.getElementById('r-essentials') as HTMLElement).textContent = essPct == null ? '–' : String(essPct);
-    (document.getElementById('r-agent') as HTMLElement).textContent = agent.score == null ? '–' : String(agent.score);
+    (document.getElementById('r-essentials') as HTMLElement).textContent = essPct == null ? '--' : String(essPct);
+    (document.getElementById('r-agent') as HTMLElement).textContent = agent.score == null ? '--' : String(agent.score);
 
     (document.getElementById('r-essentials-sub') as HTMLElement).textContent = bench
-      ? `p${bench.percentile} vs ${bench.benchmark_count} peers · median ${bench.median_score}%`
+      ? `p${bench.percentile} vs ${bench.benchmark_count} peers / median ${bench.median_score}%`
       : (essEarned != null ? `${essEarned}/${essMax} points` : '');
     (document.getElementById('r-agent-sub') as HTMLElement).textContent = agentBench
-      ? `p${agentBench.percentile} vs ${agentBench.benchmark_count} peers · median ${agentBench.median_score}%`
+      ? `p${agentBench.percentile} vs ${agentBench.benchmark_count} peers / median ${agentBench.median_score}%`
       : (agent.earned != null ? `${agent.earned}/${agent.max} probes` : '');
 
     const pillarsEl = document.getElementById('r-pillars') as HTMLElement;
@@ -1012,7 +347,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
             <span class="state-badge">${esc(a.state)}</span>
             <div class="action-title">
               <strong>${esc(a.label || a.check_name)}</strong>
-              <span>${esc(pillarMeta[a.pillar] || a.pillar)} · ${esc(a.effort)} effort</span>
+              <span>${esc(pillarMeta[a.pillar] || a.pillar)} / ${esc(a.effort)} effort</span>
             </div>
             <span class="action-points">${a.score}/${a.max_score}</span>
             ${detail}
@@ -1026,10 +361,10 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     setPhase('results');
   }
 
-  // Re-entrancy guard. The free-tier host cold-starts in 30–60s, and during
+  // Re-entrancy guard. The free-tier host cold-starts in 30-60s, and during
   // that wait people click "Run Audit" (or hit Enter) again. Without this, a
   // second run re-shows the spinner on top of the first run's rendered report
-  // — the "spinner + error + results all at once" symptom. One run at a time.
+  // and causes the "spinner + error + results all at once" symptom. One run at a time.
   let inFlight = false;
 
   form.addEventListener('submit', async (e) => {
@@ -1038,7 +373,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
 
     const target = normalizeUrl(urlInput.value);
     if (!target) {
-      fail('Enter a URL to audit — for example, nike.com');
+      fail('Enter a URL to audit, for example nike.com.');
       return;
     }
     urlInput.value = target;
@@ -1048,12 +383,12 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
     setStatus('Contacting backend');
 
     const up = await waitForBackend();
-    // If /health never confirmed, try the audit anyway — the route may be live
+    // If /health never confirmed, try the audit anyway because the route may be live
     // even when the health probe is slow. Only a failed audit shows an error.
     setStatus(
       up
-        ? 'Auditing — fetching the site the way machines do (typically 10–30s)'
-        : 'Backend slow to confirm — attempting the audit anyway'
+        ? 'Auditing the site the way machines do (typically 10-30s)'
+        : 'Backend slow to confirm. Attempting the audit anyway.'
     );
 
     try {
@@ -1083,7 +418,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
       }
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        const detail = typeof body.detail === 'string' ? ` — ${body.detail}` : '';
+        const detail = typeof body.detail === 'string' ? `: ${body.detail}` : '';
         fail(`Audit failed (HTTP ${res.status})${detail}. The free-tier host may still be waking; try again in a minute.`);
         return;
       }
@@ -1092,7 +427,7 @@ const presets = ['corporate', 'blog', 'services', 'ecommerce', 'news', 'saas'];
       const aborted = err instanceof DOMException && err.name === 'AbortError';
       fail(
         aborted
-          ? 'The audit timed out. The free-tier host may be under load — try again in a minute.'
+          ? 'The audit timed out. The free-tier host may be under load, so try again in a minute.'
           : "Couldn't reach the audit backend. Check your connection and the URL, then try again."
       );
     } finally {

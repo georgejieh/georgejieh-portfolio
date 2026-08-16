@@ -1,64 +1,67 @@
----
----
-
 <section
   data-testid="hero"
-  class="grid-bg relative flex min-h-[90vh] flex-col items-start justify-center overflow-hidden py-16 md:min-h-screen"
+  class="home-hero"
 >
-  <div class="relative z-10 w-full max-w-4xl animate-fade-in">
-    <div class="mb-6 font-mono text-xs tracking-widest text-muted uppercase md:text-sm">
-      AI/ML Engineer <span class="text-accent">&middot;</span> San Francisco, CA
-    </div>
-
-    <h1 class="mb-3 font-mono text-4xl font-bold tracking-wide text-white sm:text-5xl md:text-6xl">
-      George Jieh<span class="animate-blink text-accent">_</span>
+  <div class="home-hero__registration" aria-hidden="true"></div>
+  <div class="home-hero__inner">
+    <h1 class="home-hero__title" data-home-motion>
+      George <span>Jieh</span>
     </h1>
 
-    <div class="mb-8 font-mono text-lg text-accent sm:text-xl md:text-2xl">
-      LLM Evaluation &amp; RLHF for Frontier Models
-    </div>
+    <p class="home-hero__role">
+      AI/ML Engineer <span aria-hidden="true">/</span> San Francisco, CA
+    </p>
 
-    <p class="mb-10 max-w-2xl text-left text-base leading-relaxed text-muted md:text-lg">
+    <p class="home-hero__headline">
+      LLM Evaluation &amp; RLHF for Frontier Models
+    </p>
+
+    <p class="home-hero__summary">
       Former Scale AI Oracle Tier trainer and Quality Analyst across twelve RLHF
       projects. Builds production LLM pipelines, ML systems, and multi-agent
       orchestration. Nine years of FINRA-regulated finance behind the judgment.
       Open to AI/ML engineering and research roles.
     </p>
 
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
+    <div class="home-hero__actions" data-home-motion>
       <a
         href="#projects"
-        class="inline-flex items-center justify-center border border-accent bg-accent/10 px-6 py-3 font-mono text-sm font-medium text-accent transition-all hover:bg-accent hover:text-black md:text-base"
+        class="home-hero__primary"
       >
-        View Selected Work &rarr;
+        <span class="home-hero__action-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </span>
+        Explore selected work
       </a>
       <a
         href="#about"
-        class="font-mono text-sm text-muted transition-colors hover:text-accent md:text-base"
+        class="home-hero__secondary"
       >
-        &rarr; About
+        Read the story
       </a>
       <a
         href="https://github.com/georgejieh"
         target="_blank"
         rel="noopener"
-        class="font-mono text-sm text-muted transition-colors hover:text-accent md:text-base"
+        class="home-hero__secondary"
       >
-        &rarr; GitHub
+        GitHub
       </a>
     </div>
   </div>
 
-  <div
-    class="relative z-10 mt-16 w-full max-w-4xl space-y-1 font-mono text-xs tracking-wide text-muted/60 uppercase md:mt-24 md:text-sm"
-  >
-    <div>RLHF &middot; 12 training projects &middot; Oracle Tier + Quality Analyst, Scale AI</div>
-    <div>Stack &middot; Python &middot; PyTorch &middot; scikit-learn &middot; FastAPI &middot; OpenAI API &middot; Ollama</div>
-  </div>
-
-  <div
-    class="pointer-events-none absolute -top-1/4 -right-1/4 h-[600px] w-[600px] rounded-full opacity-15"
-    style="background: radial-gradient(circle, #00ff9c 0%, transparent 70%);"
-  >
-  </div>
+  <nav class="home-hero__programs" aria-label="Featured projects" data-home-motion>
+    <a href="#project-1">
+      <span>Program 01 / Shipped</span>
+      <strong>MachineRead</strong>
+    </a>
+    <a href="#project-2">
+      <span>Program 02 / Shipped</span>
+      <strong>REED</strong>
+    </a>
+    <a href="#project-3">
+      <span>Program 03 / In progress</span>
+      <strong>Wine Grape Climate Suitability Model</strong>
+    </a>
+  </nav>
 </section>
